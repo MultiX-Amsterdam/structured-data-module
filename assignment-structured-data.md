@@ -4,14 +4,14 @@
 
 ## Materials
 
-- [Structured Processing Tutorial Notebook](tutorial-structured-data)
+- [Structured Processing Tutorial Online Notebook](tutorial-structured-data)
 
 ## Usage
 
 Follow the steps below to set up the assignment:
 - Have the [JupyterLab](https://jupyter.org/install) environment ready.
-- Download the notebook file by clicking on the download icon at the top of the webpage when visiting the notebook pages.
-- Open the original notebook file and start doing the assignment.
+- Download the structured data processing module from the [GitHub repository](https://github.com/MultiX-Amsterdam/structured-data-module). Or you can also download the zip file from [this link](https://github.com/MultiX-Amsterdam/structured-data-module/archive/refs/heads/main.zip).
+- Open the notebook file and start doing the assignment.
 
 Follow the steps below to do the assignment:
 - Complete the assignments that are indicated in the tutorial notebook. You can leave out the optional assignment if it is too difficult or takes too much time.
