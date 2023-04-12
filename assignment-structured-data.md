@@ -29,7 +29,8 @@ Check the [pandas API](https://pandas.pydata.org/docs/reference/index.html) and 
 In the tutorial, you have learned the background of the Smell Pittsburgh application and the machine learning pipeline to build a model to predict the presence of bad smell based on sensor and weather data.
 In this optional assignment, you need to design your own experiment to answer the following question raised by the local Pittsburgh community:
 
-:::
+:::{admonition} Question of Community Concern
+:class: note
 What are the possible pollution sources that are related to the bad odor in the Pittsburgh region?
 :::
 
@@ -68,10 +69,10 @@ Your deliverable is **a Jupyter Notebook** that will be displayed online and sen
 Always keep the design brief mentioned above in mind when writing the deliverable.
 In the deliverable, you need to explain how you completed the above-listed tasks and what the results are.
 
-The deliverable also needs to contain all the code that you wrote, and the code in your deliverable needs to be excecuted without errors.
+The deliverable also needs to contain all the code that you wrote, and **the code in your deliverable needs to be excecuted without errors**.
 Having errors when running the code will significantly and negatively impact your score.
 
-Specifically and importantly, your deliverable MUST have the following sections, where we will assess your learning outcome based on the grading rubric.
+Specifically and importantly, **your deliverable MUST have the following sections**, where we will assess your learning outcome based on the grading rubric.
 Failing to have these sections will significantly and negatively impact your score.
 - **Summary**
   - Provide a summary of what you did and your findings. Maximum 150 words.
@@ -87,18 +88,19 @@ Failing to have these sections will significantly and negatively impact your sco
 
 In the real world, we often need to provide convincing evidence to argue that the machine learning model fits the data reasonably well, for example, using the evaluation metrics mentioned in the tutorial.
 The findings will not be convincing if the model fits the data poorly, like the dummy classifier (which always predicts “no” smell events) that we used in the tutorial.
-Smell prediction is a hard task, so do not worry too much about the low performance of the model in this assignment.
+Smell prediction is a hard task, so **do not worry too much about the low performance of the model** in this assignment.
 The assignment aims to let you do experiments and compare the results, not optimize performance.
 
-In addition, if you read articles (e.g., online blogs, academic papers) and take their ideas, make sure that you cite and attribute the works in your deliverable. It is essential to keep this integrity in scientific research.
+If you read articles (e.g., online blogs, academic papers) and take their ideas, you need to **cite and attribute the sources** in your deliverable. It is essential to keep this integrity in scientific research.
 
-Also, generative AI is allowed in this assignment.
-However, if you use generative AI to help you in completing this assignment, you need to mention how you use the generative AI, including the type of tasks (e.g., proofreading text, brainstorming ideas, generating code), the model that you used (e.g., ChatGPT with GPT 3.5), the dates that you use the model, and the prompts that you enter to get the generative AI to create the content.
-You also need to clearly indicate which parts in the deliverable is created with the support of the generative AI.
+Generative AI is allowed in this assignment.
+However, if you use generative AI to help you in completing this assignment, **you need to mention how you use the generative AI in detail**, including the type of tasks (e.g., proofreading text, brainstorming ideas, generating code), the model that you used (e.g., ChatGPT with GPT 3.5), the dates that you use the model, and the prompts that you enter to get the generative AI to create the content.
+You also need to clearly indicate which parts in the deliverable are created with the support of generative AI.
+Create an Appendix section in the deliverable to include the above-mentioned information regarding the usage of generative AI.
 
-### Grading Rubric
+### Grading Rubric for the Optional Assignment
 
-Assessment of Learning Goal 1: Quality of describing the experiment design (45%)
+**Assessment of Learning Goal 1: Quality of describing the experiment design (45%)**
 - Excellent (9-10)
   - The experiment design is rich and clearly justified about how such design can help identify local pollution patterns.
 - Good (7-8)
@@ -108,7 +110,7 @@ Assessment of Learning Goal 1: Quality of describing the experiment design (45%)
 - Insufficient (<6)
   - The experiment design has low quality. The rationality and motivation of the experiment is poorly justified.
 
-Assessment of Learning Goal 2: Quality of critically reflecting the experiment and supporting the findings with evidence (45%)
+**Assessment of Learning Goal 2: Quality of critically reflecting the experiment and supporting the findings with evidence (45%)**
 - Excellent (9-10)
   - The findings are rich, explained in a clear way that lay people can understand, and supported with strong evidence from the experiment results and visualizations.
 - Good (7-8)
@@ -118,7 +120,7 @@ Assessment of Learning Goal 2: Quality of critically reflecting the experiment a
 - Insufficient (<6)
   - The findings have low quality, not explained well, and are not supported with evidence from the experiment.
 
-Assessment of Learning Goal 3: Ability to automate the experiment (weight 10%)
+**Assessment of Learning Goal 3: Ability to automate the experiment (weight 10%)**
 - Excellent (9-10)
   - The experiment is fully automated (without errors when running the code), has good documentation about how the code works, and has very good code quality.
 - Good (7-8)
