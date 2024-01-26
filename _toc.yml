@@ -1,0 +1,16 @@
+# Table of contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+
+format: jb-book
+root: docs/overview-structured-data
+parts:
+- caption:
+  chapters:
+  - file: docs/preparation-structured-data
+    title: "Preparation"
+  - file: docs/tutorial-structured-data
+    title: "Tutorial"
+  - file: docs/assignment-structured-data
+    title: "Assignment"
+  - file: docs/pytorch-structured-data
+    title: "PyTorch Implementation"
