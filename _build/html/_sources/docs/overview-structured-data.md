@@ -5,7 +5,7 @@
 
 [^credit]: Credit: this teaching material is created by [Yen-Chia Hsu](https://github.com/yenchiah).
 
-This module is about processing structured data and has the following learning goals:
+All the content in this repository is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). This module is about processing structured data and has the following learning goals:
 
 - **Goal 1**: Connect steps in the structured data processing pipeline to a real-world case.
 - **Goal 2**: Preprocess structured data and prepare features/labels for modeling using pandas.
