@@ -1,7 +1,6 @@
-# Assignment
+# Assignment (Structured Data Processing)
 
-- Structured Data Processing
-- (Last updated: Jan 26, 2024)[^credit]
+(Last updated: Jan 26, 2024)[^credit]
 
 [^credit]: Credit: this teaching material is created by [Yen-Chia Hsu](https://github.com/yenchiah).
 
