@@ -5,3 +5,5 @@ ipython3
 pandas
 plotly
 scikit-learn
+seaborn
+pytz
