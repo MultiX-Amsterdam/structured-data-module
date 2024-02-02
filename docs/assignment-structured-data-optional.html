@@ -1,0 +1,629 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Optional Assignment (Structured Data Processing) &#8212; Structured Data Processing</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=5115cc725059bd94278eecd172e13a965bf8f5a9" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../_static/sphinx-thebe.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Pytorch Implementation (Structured Data Processing)" href="pytorch-structured-data.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Structured Data Processing</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="overview-structured-data.html">
+                    Structured Data Processing
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="preparation-structured-data.html">
+   Preparation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="tutorial-structured-data.html">
+   Tutorial
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="assignment-structured-data.html">
+   Assignment
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="pytorch-structured-data.html">
+   PyTorch Implementation
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Optional Assignment
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Powered by <a href="https://jupyterbook.org">Jupyter Book</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/MultiX-Amsterdam/structured-data-module"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/MultiX-Amsterdam/structured-data-module/issues/new?title=Issue%20on%20page%20%2Fdocs/assignment-structured-data-optional.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../_sources/docs/assignment-structured-data-optional.md"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.md</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#learning-goals-of-the-optional-assignment">
+   Learning Goals of the Optional Assignment
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#tasks-for-the-optional-assignment">
+   Tasks for the Optional Assignment
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#deliverable-for-the-optional-assignment">
+   Deliverable for the Optional Assignment
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#grading-rubric-for-the-optional-assignment">
+   Grading Rubric for the Optional Assignment
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Optional Assignment (Structured Data Processing)</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#learning-goals-of-the-optional-assignment">
+   Learning Goals of the Optional Assignment
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#tasks-for-the-optional-assignment">
+   Tasks for the Optional Assignment
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#deliverable-for-the-optional-assignment">
+   Deliverable for the Optional Assignment
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#grading-rubric-for-the-optional-assignment">
+   Grading Rubric for the Optional Assignment
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="optional-assignment-structured-data-processing">
+<h1>Optional Assignment (Structured Data Processing)<a class="headerlink" href="#optional-assignment-structured-data-processing" title="Permalink to this headline">#</a></h1>
+<p>(Last updated: Jan 26, 2024)<a class="footnote-reference brackets" href="#credit" id="id1">1</a></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This assignment is optional. Doing this assignment is voluntary and does not give you extra scores. The grading rubric is only for reference.</p>
+</div>
+<p>In the <a class="reference internal" href="tutorial-structured-data.html"><span class="doc std std-doc">tutorial</span></a>, you have learned the background of the Smell Pittsburgh application and the machine learning pipeline to build a model to predict the presence of bad smell based on sensor and weather data.
+In this optional assignment, you need to design your own experiment to answer the following question raised by the local Pittsburgh community:</p>
+<div class="note admonition">
+<p class="admonition-title">Question of Community Concern</p>
+<p>What are the possible pollution sources that are related to the bad odor in the Pittsburgh region?</p>
+</div>
+<section id="learning-goals-of-the-optional-assignment">
+<h2>Learning Goals of the Optional Assignment<a class="headerlink" href="#learning-goals-of-the-optional-assignment" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p>Goal 1: Understand how to design experiments using machine learning pipelines to help stakeholders make sense of structured data.</p></li>
+<li><p>Goal 2: Be able to conduct experiments to critically reflect and understand how features and evaluation metrics affect the performance of machine learning models.</p></li>
+<li><p>Goal 3: Understand how to automate the machine learning pipeline of structured data to conduct experiments for different settings, document how the code works, and have good code quality.</p></li>
+</ul>
+</section>
+<section id="tasks-for-the-optional-assignment">
+<h2>Tasks for the Optional Assignment<a class="headerlink" href="#tasks-for-the-optional-assignment" title="Permalink to this headline">#</a></h2>
+<p>To answer this question, you need to select proper variables and fit the data to the model reasonably well.
+Consider the following aspects when designing the experiment:</p>
+<ul class="simple">
+<li><p>How does the data look like?</p>
+<ul>
+<li><p>Hint: Use the knowledge that you learned in this module to plot at least 1 graph for exploratory data analysis. The graph needs to be different from the ones that are already presented in the tutorial.</p></li>
+</ul>
+</li>
+<li><p>What are the models that you want to use?</p>
+<ul>
+<li><p>Hint: Use the knowledge that you learned in this module to choose a set of at least 3 different types of models that you want to investigate. Notice that this is a classification task, and a list of available models can be found at the <a class="reference external" href="https://scikit-learn.org/stable/supervised_learning.html">scikit-learn website</a>.</p></li>
+</ul>
+</li>
+<li><p>What are the features that you are interested in exploring?</p>
+<ul>
+<li><p>Hint: Use the knowledge that you learned in this module to select at least 3 different feature sets and check how these sets affect model performance. A list of available variables is mentioned in the tutorial and also can be found from the <a class="reference external" href="https://github.com/CMU-CREATE-Lab/smell-pittsburgh-prediction/tree/master/dataset/v2.1#description-of-the-air-quality-sensor-data">dataset description</a>.</p></li>
+<li><p>Hint: Use the knowledge that you learned in this module to compute feature importance and inspect which are the important features.</p></li>
+</ul>
+</li>
+<li><p>How much data does the model need to predict bad odor reasonably well?</p>
+<ul>
+<li><p>Hint: Change the <code class="docutils literal notranslate"><span class="pre">train_size</span></code> parameter to increase or decrease the amount of data records for training the machine learning model. Try at least 3 different sizes.</p></li>
+</ul>
+</li>
+<li><p>How often do you need to retrain the model using updated data?</p>
+<ul>
+<li><p>Hint: Change the <code class="docutils literal notranslate"><span class="pre">test_size</span></code> parameter to indicate how often you want to retrain the model with updated data. Try at least 3 different sizes.</p></li>
+</ul>
+</li>
+<li><p>How many hours do the model need to look back to check the previous data?</p>
+<ul>
+<li><p>Hint: change the <code class="docutils literal notranslate"><span class="pre">b_hr_sensor</span></code> parameter in the <code class="docutils literal notranslate"><span class="pre">compute_feature_label</span></code> function to specify the number of hours that you want the model to look back. Try at least 3 different variations.</p></li>
+</ul>
+</li>
+<li><p>It is recommended to use <code class="docutils literal notranslate"><span class="pre">f_hr_smell=7</span></code> in the <code class="docutils literal notranslate"><span class="pre">compute_feature_label</span></code> function (in Task 6 in the tutorial) and use value 40 as the threshold to indicate a smell event (in Task 7 in the tutorial). However, you are encouraged to think about this more and try different numbers. But keep in mind that these parameters affect the definition of a smell event, which means the rule that defines whether bad odors reach a certain level that requires community attention.</p></li>
+</ul>
+<p>When designing the experiment, please consider the computation time carefully.
+Keep in mind that if you have a very large set of features, training the machine learning model can take a very long time, and explaining the result can also be hard.
+Instead of including all the available features in the experiment, it may be better to separate the features into several groups, and then train the machine learning model on different groups with different sets of features.</p>
+</section>
+<section id="deliverable-for-the-optional-assignment">
+<h2>Deliverable for the Optional Assignment<a class="headerlink" href="#deliverable-for-the-optional-assignment" title="Permalink to this headline">#</a></h2>
+<p>Your deliverable is <strong>a Jupyter Notebook</strong> that will be displayed online and sent to the Pittsburgh local community to help them understand air pollution patterns and advocate for policy changes.
+Always keep the <a class="reference external" href="tutorial-structured-data#scenario">design scenario</a> mentioned at the begining of the tutorial in mind when writing the deliverable.
+In the deliverable, you need to explain how you completed the above-listed tasks and what the results are.</p>
+<p>The deliverable also needs to contain all the code that you wrote, and <strong>the code in your deliverable needs to be excecuted without errors</strong>.
+Having errors when running the code will significantly and negatively impact your score.</p>
+<p>Specifically and importantly, <strong>your deliverable MUST have the following sections</strong>, where we will assess your learning outcome based on the grading rubric.
+Failing to have these sections will significantly and negatively impact your score.</p>
+<ul class="simple">
+<li><p><strong>Summary</strong></p>
+<ul>
+<li><p>Provide a summary of what you did and your findings. Maximum 150 words.</p></li>
+</ul>
+</li>
+<li><p><strong>Experiment Design and Implementation</strong></p>
+<ul>
+<li><p>Describe the machine learning models that you choose and explain why you choose them. The reasons may come from the knowledge that you learned in the lectures or the tutorial.</p></li>
+<li><p>Describe the set of features (or multiple sets if you have multiple groups of features) that you choose and why you choose them. The reasons may come from the insights that you learned when you explored the data during the preparation phase of this module.</p></li>
+<li><p>Describe the number of hours that you want the model to look back, the amount of data that you use to train your model, and how often you think the model needs to be re-trained using updated data.</p></li>
+</ul>
+</li>
+<li><p><strong>Experiment Results</strong></p>
+<ul>
+<li><p>Produce and print one or multiple tables (using pandas dataframes) to show the results of your experiment. Make sure that you clearly describe what each column in the table means.</p></li>
+</ul>
+</li>
+<li><p><strong>Discussion</strong></p>
+<ul>
+<li><p>Explain your findings from the experiment. Keep in mind that the local community will read your findings, and they have limited knowledge of machine learning and data science. You need to explain the findings in a way that local citizens and policy-makers can understand.</p></li>
+<li><p>For example, from the experiment results, which pollutants are important to predict the presence of poor odor? Are wind directions or speed important? You need to use the experiment result to support your argument, for example, the feature importance.</p></li>
+</ul>
+</li>
+</ul>
+<p>In the real world, we often need to provide convincing evidence to argue that the machine learning model fits the data reasonably well, for example, using the evaluation metrics mentioned in the tutorial.
+The findings will not be convincing if the model fits the data poorly, like the dummy classifier (which always predicts “no” smell events) that we used in the tutorial.
+Smell prediction is a hard task, so <strong>do not worry too much about the low performance of the model</strong> in this assignment.
+The assignment aims to let you do experiments and compare the results, not optimize performance.</p>
+<p>If you read articles (e.g., online blogs, academic papers) and take their ideas, you need to <strong>cite and attribute the sources</strong> in your deliverable. It is essential to keep this integrity in scientific research.</p>
+<p>Generative AI is allowed in this assignment.
+However, if you use generative AI to help you in completing this assignment, <strong>you need to mention how you use the generative AI in detail</strong>, including the type of tasks (e.g., proofreading text, brainstorming ideas, generating code), the model that you used (e.g., ChatGPT with GPT 3.5), the dates that you use the model, and the prompts that you enter to get the generative AI to create the content.
+You also need to clearly indicate which parts in the deliverable are created with the support of generative AI.
+Create an Appendix section in the deliverable to include the above-mentioned information regarding the usage of generative AI.</p>
+</section>
+<section id="grading-rubric-for-the-optional-assignment">
+<h2>Grading Rubric for the Optional Assignment<a class="headerlink" href="#grading-rubric-for-the-optional-assignment" title="Permalink to this headline">#</a></h2>
+<p><strong>Assessment of Learning Goal 1: Quality of describing the experiment design (45%)</strong></p>
+<ul class="simple">
+<li><p>Excellent (9-10)</p>
+<ul>
+<li><p>The experiment design is rich and clearly justified about how such design can help identify local pollution patterns.</p></li>
+</ul>
+</li>
+<li><p>Good (7-8)</p>
+<ul>
+<li><p>The experiment design is adequate and properly justified about how such design can help identify local pollution patterns.</p></li>
+</ul>
+</li>
+<li><p>Sufficient (6)</p>
+<ul>
+<li><p>The experiment design is reasonable. But, the justification about how such design can help identify local pollution patterns may not be clear.</p></li>
+</ul>
+</li>
+<li><p>Insufficient (&lt;6)</p>
+<ul>
+<li><p>The experiment design has low quality. The rationality and motivation of the experiment is poorly justified.</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>Assessment of Learning Goal 2: Quality of critically reflecting the experiment and supporting the findings with evidence (45%)</strong></p>
+<ul class="simple">
+<li><p>Excellent (9-10)</p>
+<ul>
+<li><p>The findings are rich, explained in a clear way that lay people can understand, and supported with strong evidence from the experiment results and visualizations.</p></li>
+</ul>
+</li>
+<li><p>Good (7-8)</p>
+<ul>
+<li><p>The findings are adequate, explained in a proper manner for lay people, and supported with proper evidence from the experiment results and visualizations.</p></li>
+</ul>
+</li>
+<li><p>Sufficient (6)</p>
+<ul>
+<li><p>Findings are provided. But some of them are not explained properly or not supported with evidence from the experiment.</p></li>
+</ul>
+</li>
+<li><p>Insufficient (&lt;6)</p>
+<ul>
+<li><p>The findings have low quality, not explained well, and are not supported with evidence from the experiment.</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>Assessment of Learning Goal 3: Ability to automate the experiment (weight 10%)</strong></p>
+<ul class="simple">
+<li><p>Excellent (9-10)</p>
+<ul>
+<li><p>The experiment is fully automated (without errors when running the code), has good documentation about how the code works, and has very good code quality.</p></li>
+</ul>
+</li>
+<li><p>Good (7-8)</p>
+<ul>
+<li><p>The experiment is fully automated (without errors when running the code), has reasonable documentation about how the code works, and has the code be mostly human-readable.</p></li>
+</ul>
+</li>
+<li><p>Sufficient (6)</p>
+<ul>
+<li><p>The experiment is fully automated (without errors when running the code). There are some documentation about how the code works, but some may not be clear. Some parts of the code are hard to understand.</p></li>
+</ul>
+</li>
+<li><p>Insufficient (&lt;6)</p>
+<ul>
+<li><p>The experiment is not automated. Or the code runs with errors. Or there are no documentation and poor code quality.</p></li>
+</ul>
+</li>
+</ul>
+<hr class="footnotes docutils" />
+<dl class="footnote brackets">
+<dt class="label" id="credit"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>Credit: this teaching material is created by <a class="reference external" href="https://github.com/yenchiah">Yen-Chia Hsu</a>.</p>
+</dd>
+</dl>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            kernelName: "python3",
+            path: "./docs"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="pytorch-structured-data.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Pytorch Implementation (Structured Data Processing)</p>
+        </div>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By Yen-Chia Hsu<br/>
+  
+      &copy; Copyright 2022.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>
