@@ -3,9 +3,9 @@
 
 # # Tutorial (Structured Data Processing)
 
-# (Last updated: Jan 26, 2024)[^credit]
+# (Last updated: Feb 6, 2024)[^credit]
 # 
-# [^credit]: Credit: this teaching material is created by [Yen-Chia Hsu](https://github.com/yenchiah).
+# [^credit]: Credit: this teaching material is created by [Yen-Chia Hsu](https://github.com/yenchiah) and revised by [Alejandro Monroy](https://github.com/amonroym99).
 
 # This tutorial will familiarize you with the data science pipeline of processing structured data, using a real-world example of building models to predict and explain the presence of bad smell events in Pittsburgh based on air quality and weather data. The models are used to send push notifications about bad smell events to inform citizens, as well as to explain local pollution patterns to inform stakeholders.
 # 
@@ -24,6 +24,8 @@
 # - [Task 6: Prepare Features and Labels](#t6)
 #   - [Assignment for Task 6](#a6)
 # - [Task 7: Train and Evaluate Models](#t7)
+#   - [Principal Component Analysis](#pca)
+#   - [Evaluation Metrics](#evaluation-metrics)
 #   - [Use the Dummy Classifier](#dummy-classifier)
 #   - [Use the Decision Tree Model](#decision-tree)
 #   - [Use the Random Forest Model](#random-forest)
@@ -68,11 +70,30 @@ from sklearn.decomposition import PCA
 import plotly.express as px
 
 
+# Set the global style of all Pandas table output:
+
+# In[2]:
+
+
+from IPython.core.display import HTML
+
+def set_global_df_style():
+    styles = """
+    <style>
+        .dataframe * {font-size: 1em !important;}
+    </style>
+    """
+    return HTML(styles)
+
+# Call this function in a notebook cell to apply the style globally
+set_global_df_style()
+
+
 # ## Task Answers
 
 # The code block below contains answers for the assignments in this tutorial. **Do not check the answers in the next cell before practicing the tasks.**
 
-# In[2]:
+# In[3]:
 
 
 def check_answer_df(df_result, df_answer, n=1):
@@ -253,7 +274,7 @@ def answer_experiment(df_x, df_y):
 
 # In this task, we will process the sensor data from various air quality monitoring stations in Pittsburgh. First, we need to load all the sensor data.
 
-# In[3]:
+# In[4]:
 
 
 path = "smellpgh-v1/esdr_raw"
@@ -265,21 +286,21 @@ for f in list_of_files:
 
 # Now, the `sensor_raw_list` variable contains all the data frames with sensor values from different air quality monitoring stations. Noted that `sensor_raw_list` is an array of data frames. We can print one of them to take a look, as shown below. 
 
-# In[4]:
+# In[5]:
 
 
-print(sensor_raw_list[0])
+sensor_raw_list[0]
 
 
 # The `EpochTime` index is the timestamp in epoch time, which means the number of seconds that have elapsed since January 1st, 1970 (midnight UTC/GMT). Other columns mean the sensor data from an air quality monitoring station.
 
 # Next, we need to resample and merge all the sensor data frames so that they can be used for modeling. Our goal is to have a dataframe that looks like the following:
 
-# In[5]:
+# In[6]:
 
 
 df_sensor = answer_preprocess_sensor(sensor_raw_list)
-print(df_sensor)
+df_sensor
 
 
 # In the expected output above, the `EpochTime` index is converted from timestamps into [pandas datetime](https://pandas.pydata.org/docs/reference/api/pandas.DatetimeIndex.html#pandas.DatetimeIndex) objects, which has the format `year-month-day hour:minute:second+timezone`. The `+00:00` string means the GMT/UTC timezone. Other columns mean the average value of the sensor data in the previous hour. For example, `2016-10-31 06:00:00+00:00` means October 31 in 2016 at 6AM UTC time, and the cell with column `3.feed_1.SO2_PPM` means the averaged SO2 (sulfur dioxide) values from 5:00 to 6:00.
@@ -301,7 +322,7 @@ print(df_sensor)
 # - Finally, fill in the missing data with the value -1. The reason for not using 0 is that we want the model to know if sensors give values (including zero) or no data.
 #   - Hint: Use the `pandas.DataFrame.fillna` function when treating missing values. Type `?pd.DataFrame.fillna` in a code cell for more information.
 
-# In[6]:
+# In[7]:
 
 
 def preprocess_sensor(df_list):
@@ -326,7 +347,7 @@ def preprocess_sensor(df_list):
 
 # The code below tests if the output of your function matches the expected output.
 
-# In[7]:
+# In[8]:
 
 
 check_answer_df(preprocess_sensor(sensor_raw_list), df_sensor, n=1)
@@ -338,22 +359,22 @@ check_answer_df(preprocess_sensor(sensor_raw_list), df_sensor, n=1)
 
 # In this task, we will preprocess the smell data. First, we need to load the raw smell data.
 
-# In[8]:
+# In[9]:
 
 
 smell_raw = pd.read_csv("smellpgh-v1/smell_raw.csv").set_index("EpochTime")
-print(smell_raw)
+smell_raw
 
 
 # The meaning of `EpochTime` is explained in the previous task. Other columns mean the self-reported symptoms, descriptions of smell, severity ratings (the `smell_value` column), and the zipcode where the report is submitted in Pittsburgh, Pennsylvania. For example, the second row means that the smell report was submitted from the 15218 zipcode with wood smoke description and severity rating 2. For more description about the smell, please check the [Smell Pittsburgh website](https://smellpgh.org/how_it_works).
 
 # Next, we need to resample the smell data so that they can be used for modeling. Our goal is to have a dataframe that looks like the following:
 
-# In[9]:
+# In[10]:
 
 
 df_smell = answer_preprocess_smell(smell_raw)
-print(df_smell)
+df_smell
 
 
 # In the latest row, the timestamp is `2018-09-30 04:00:00+00:00`, which means this row contains the data from 3:00 to 4:00 on September 30 in 2018. This row has `smell_value` 8, which means the sum of smell report ratings in the above mentioned time range. Notice that the expected output ignores all smell ratings from 1 to 2. This is becasue we only want the ratings that indicate bad smell, which will be further explained below.
@@ -372,7 +393,7 @@ print(df_smell)
 # - Finally, fill in the missing data with the value 0. The reason is that missing data means there are no smell reports (provided by citizens) within an hour, so we assume that there is no bad smell within this period of time. Notice that this is an assumption and also a limitation since citizens rarely report good smell.
 #   - Hint: Use the `pandas.DataFrame.fillna` function when treating missing values. Type `?pd.DataFrame.fillna` in a code cell for more information.
 
-# In[10]:
+# In[11]:
 
 
 def preprocess_smell(df):
@@ -397,7 +418,7 @@ def preprocess_smell(df):
 
 # The code below tests if the output of your function matches the expected output.
 
-# In[11]:
+# In[12]:
 
 
 check_answer_df(preprocess_smell(smell_raw), df_smell, n=1)
@@ -405,7 +426,7 @@ check_answer_df(preprocess_smell(smell_raw), df_smell, n=1)
 
 # Now, we can plot the distribution of smell values by using the `pandas.DataFrame.plot` function.
 
-# In[12]:
+# In[13]:
 
 
 fig = df_smell.plot(kind="hist", bins=20, ylim=(0,100), edgecolor="black").set_yticks([0,50,100], labels=["0","50",">100"])
@@ -415,7 +436,7 @@ fig = df_smell.plot(kind="hist", bins=20, ylim=(0,100), edgecolor="black").set_y
 
 # We can also plot the average number of smell reports distributed by the day of week (Sunday to Saturday) and the hour of day (0 to 23), using the code below.
 
-# In[13]:
+# In[14]:
 
 
 def is_datetime_obj_tz_aware(dt):
@@ -427,7 +448,7 @@ def is_datetime_obj_tz_aware(dt):
     dt : pandas.DatetimeIndex
         A datatime index object.
     """
-    return dt.tzinfo is not None and dt.tzinfo.utcoffset(dt) is not None
+    return dt.tz is not None
 
 
 def plot_smell_by_day_and_hour(df):
@@ -454,7 +475,7 @@ def plot_smell_by_day_and_hour(df):
 
     # Plot the graph.
     y_l = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-    df_pivot = pd.pivot_table(df, values="smell_value", index=["day_of_week"], columns=["hour_of_day"], aggfunc=np.mean)
+    df_pivot = pd.pivot_table(df, values="smell_value", index=["day_of_week"], columns=["hour_of_day"], aggfunc="mean")
     f, ax = plt.subplots(figsize=(14, 6))
     sns.heatmap(df_pivot, annot=False, cmap="Blues", fmt="g", linewidths=0.1, yticklabels=y_l, ax=ax)
 
@@ -476,7 +497,7 @@ plot_smell_by_day_and_hour(df_smell)
 # \
 # Our goal is to construct two data frames, `df_x` and `df_y`, that represent the features and labels, respectively. First, we will deal with the sensor data. We need a function to insert columns (that indicate previous `n_hr` hours of sensor) to the existing data frame, where `n_hr` should be a parameter that we can control. The code below can help us achieve this.
 
-# In[14]:
+# In[15]:
 
 
 def insert_previous_data_to_cols(df, n_hr=0):
@@ -530,20 +551,20 @@ def insert_previous_data_to_cols(df, n_hr=0):
 
 # The code below shows a test case, which is a part of the sensor data.
 
-# In[15]:
+# In[16]:
 
 
 # Below is an example input.
 df_sensor_example_in = df_sensor[["3.feed_1.SONICWS_MPH"]][0:5]
-print(df_sensor_example_in)
+df_sensor_example_in
 
 
-# In[16]:
+# In[17]:
 
 
 # Below is the expected output of the above example input.
 df_sensor_example_out = insert_previous_data_to_cols(df_sensor_example_in, n_hr=2)
-print(df_sensor_example_out)
+df_sensor_example_out
 
 
 # The reason that there are 2 less rows in the expected output is because we set `n_hr=2`, which means there are missing data in the original first and second row (because there was no previous data for these rows). So in the code, we removed these rows.
@@ -563,7 +584,7 @@ print(df_sensor_example_out)
 # 
 # There are several reasons to do this instead of using the original wind direction degrees (that range from 0 to 360). First, by applying sine and cosine to the degrees, we can transform the original data to a continuous variable. The original data is not continuous since there are no values below 0 or above 360, and there is no information to tell that 0 degrees and 360 degrees are the same. Second, the decomposed sine and cosine components allow us to inspect the effect of wind on the north-south and east-west directions separately, which may help us explain the importance of wind directions. Below is the code for achieving this.
 
-# In[17]:
+# In[18]:
 
 
 def convert_wind_direction(df):
@@ -599,56 +620,56 @@ def convert_wind_direction(df):
 
 # The code below shows a test case, which is a part of the sensor data.
 
-# In[18]:
+# In[19]:
 
 
 # Below is an example input.
 df_wind_example_in = df_sensor[["3.feed_1.SONICWD_DEG"]][0:5]
-print(df_wind_example_in)
+df_wind_example_in
 
-
-# In[19]:
-
-
-# Below is the expected output of the above example input.
-df_wind_example_out = convert_wind_direction(df_wind_example_in)
-print(df_wind_example_out)
-
-
-# We have dealt with the sensor data. Next, we will deal with the smell data. We need a function to sum up smell values in the future hours, where `n_hr` should be a parameter that we can control. The code below shows a test case, which is a part of the smell data.
 
 # In[20]:
 
 
-# Below is an example input.
-df_smell_example_in = df_smell[107:112]
-print(df_smell_example_in)
+# Below is the expected output of the above example input.
+df_wind_example_out = convert_wind_direction(df_wind_example_in)
+df_wind_example_out
 
+
+# We have dealt with the sensor data. Next, we will deal with the smell data. We need a function to sum up smell values in the future hours, where `n_hr` should be a parameter that we can control. The code below shows a test case, which is a part of the smell data.
 
 # In[21]:
 
 
-# Below is the expected output of the above example input.
-df_smell_example_out1 = answer_sum_current_and_future_data(df_smell_example_in, n_hr=1)
-print(df_smell_example_out1)
+# Below is an example input.
+df_smell_example_in = df_smell[107:112]
+df_smell_example_in
 
 
 # In[22]:
 
 
-# Below is another expected output with a different n_hr.
-df_smell_example_out2 = answer_sum_current_and_future_data(df_smell_example_in, n_hr=3)
-print(df_smell_example_out2)
+# Below is the expected output of the above example input.
+df_smell_example_out1 = answer_sum_current_and_future_data(df_smell_example_in, n_hr=1)
+df_smell_example_out1
 
-
-# In the output above, notice that row `2016-11-05 10:00:00+00:00` has smell value `83`, and the setting is `n_hr=3`, which means the sum of smell values within `n_hr+1` hours (i.e., from `10:00` to `14:00`) is 83. Pay attention to this setup since it can be confusing. The reason of `n_hr+1` (but not `n_hr`) is because the input data already indicates the sum of smell values within the future 1 hour.
 
 # In[23]:
 
 
+# Below is another expected output with a different n_hr.
+df_smell_example_out2 = answer_sum_current_and_future_data(df_smell_example_in, n_hr=3)
+df_smell_example_out2
+
+
+# In the output above, notice that row `2016-11-05 10:00:00+00:00` has smell value `83`, and the setting is `n_hr=3`, which means the sum of smell values within `n_hr+1` hours (i.e., from `10:00` to `14:00`) is 83. Pay attention to this setup since it can be confusing. The reason of `n_hr+1` (but not `n_hr`) is because the input data already indicates the sum of smell values within the future 1 hour.
+
+# In[24]:
+
+
 # Below is another expected output when n_hr is 0.
 df_smell_example_out3 = answer_sum_current_and_future_data(df_smell_example_in, n_hr=0)
-print(df_smell_example_out3)
+df_smell_example_out3
 
 
 # <a name="a6"></a>
@@ -663,7 +684,7 @@ print(df_smell_example_out3)
 #   - Hint: Use `pandas.DataFrame.iloc` to select the rows that you want to keep. Type `?pd.DataFrame.iloc` in a code cell for more information.
 # - You need to handle the edge case when `n_hr=0`, which should output the original data frame.
 
-# In[24]:
+# In[25]:
 
 
 def sum_current_and_future_data(df, n_hr=0):
@@ -690,19 +711,19 @@ def sum_current_and_future_data(df, n_hr=0):
 
 # The code below tests if the output of your function matches the expected output.
 
-# In[25]:
+# In[26]:
 
 
 check_answer_df(sum_current_and_future_data(df_smell_example_in, n_hr=1), df_smell_example_out1, n=1)
 
 
-# In[26]:
+# In[27]:
 
 
 check_answer_df(sum_current_and_future_data(df_smell_example_in, n_hr=3), df_smell_example_out2, n=2)
 
 
-# In[27]:
+# In[28]:
 
 
 check_answer_df(sum_current_and_future_data(df_smell_example_in, n_hr=0), df_smell_example_out3, n=3)
@@ -710,7 +731,7 @@ check_answer_df(sum_current_and_future_data(df_smell_example_in, n_hr=0), df_sme
 
 # Finally, we need a function to compute the features and labels, based on the above `insert_previous_data_to_cols` and `sum_current_and_future_data` functions that you implemented. The code is below.
 
-# In[28]:
+# In[29]:
 
 
 def compute_feature_label(df_smell, df_sensor, b_hr_sensor=0, f_hr_smell=0):
@@ -776,8 +797,8 @@ def compute_feature_label(df_smell, df_sensor, b_hr_sensor=0, f_hr_smell=0):
     assert df.isna().sum().sum() == 0, "Error! There is missing data."
 
     # Separate features (x) and labels (y).
-    df_x = df[df_sensor.columns]
-    df_y = df[df_smell.columns]
+    df_x = df[df_sensor.columns].copy()
+    df_y = df[df_smell.columns].copy()
 
     # Add the hour of day and the day of week.
     dow_radian = df["EpochTime"].dt.dayofweek.copy(deep=True) * 2 * np.pi / 6.0
@@ -793,7 +814,7 @@ def compute_feature_label(df_smell, df_sensor, b_hr_sensor=0, f_hr_smell=0):
 # 
 # Note that `b_hr_sensor=n` means that we want to insert previous `n+1` hours of sensor data , and `f_hr_smell=m` means that we want to sum up the smell values of the future `m+1` hours. For example, suppose that the current time is 8:00, setting `b_hr_sensor=2` means that we use all sensor data from 5:00 to 8:00 (as features `df_x` in prediction), and setting `f_hr_smell=7` means that we sum up the smell values from 8:00 to 16:00 (as labels `df_y` in prediction).
 
-# In[29]:
+# In[30]:
 
 
 df_x, df_y = compute_feature_label(df_smell, df_sensor, b_hr_sensor=2, f_hr_smell=7)
@@ -801,7 +822,7 @@ df_x, df_y = compute_feature_label(df_smell, df_sensor, b_hr_sensor=2, f_hr_smel
 
 # Below is the data frame of features (i.e., the predictor variable).
 
-# In[30]:
+# In[31]:
 
 
 df_x
@@ -809,10 +830,10 @@ df_x
 
 # Below is the data frame of labels (i.e., the response variable).
 
-# In[31]:
+# In[32]:
 
 
-print(df_y)
+df_y
 
 
 # <a name="t7"></a>
@@ -823,25 +844,75 @@ print(df_y)
 
 # First, let us threshold the features to make them binary for our classification task. We will use value 40 as the threshold to indicate a smell event. The threshold 40 was used in the Smell Pittsburgh research paper. It is equivalent to the situation that 10 people reported smell with rating 4 within 8 hours.
 
-# In[32]:
+# In[33]:
 
 
 df_y_40 = (df_y>=40).astype(int)
-print(df_y_40)
+df_y_40
 
 
 # The descriptive statistics below tell us that the dataset is imbalanced, which means that the numbers of data points in the positive and negative label groups have a big difference.
 
-# In[33]:
-
-
-print("There are %d rows with smell events." % (df_y_40.sum()))
-print("This means %.2f proportion of the data has smell events." % (df_y_40.sum()/len(df_y_40)))
-
-
-# We can also plot the result from the Principal Component Analysis to check if there are patterns in the data. The following code block outputs the result.
-
 # In[34]:
+
+
+print("There are %d rows with smell events." % (df_y_40.sum().iloc[0]))
+print("This means %.2f proportion of the data has smell events." % (df_y_40.sum().iloc[0]/len(df_y_40)))
+
+
+# <a name="pca"></a>
+
+# ### Principal Component Analysis
+
+# We can also plot the result from the Principal Component Analysis (PCA) to check if there are patterns in the data. 
+# 
+# PCA is a linear dimensionality reduction technique aiming to transform the original variables into a new set of uncorrelated variables (principal components) that preserve as much information or variability in the dataset as possible. To do so, it applies a linear transformation to the data onto a new coordinate system such that the directions (principal components) that capture the largest variation in the data can be identified. 
+# 
+# If you are interested in the mathematical explanation of PCA, you can check the following hidden block. Otherwise, please feel free to skip the math.
+
+# :::{admonition} Click the button to show the math for PCA
+# :class: dropdown note
+# 
+# Principal components are the eigenvectors of the covariance matrix of the centered data. The magnitude of their corresponding eigenvalues indicates the explained variance that each principal component captures. That way, the eigenvectors with the $n$ highest principal components will be chosen as principal components.
+# 
+# The step to apply PCA with $n$ components to a dataset $X$ are the following:
+# 
+# 1. **Calculate covariance matrix of the centered data:** 
+# 
+#     Subtract the mean ($\mu_X$) of each feature
+# 
+#     $$ \bar{X} = X - \mu_X, $$
+#     
+#     and compute the covariance matrix of the centered data $\bar{X}$:
+#     
+#     $$ C = \frac{1}{N} \bar{X}^T \bar{X}.$$
+#     
+# 2. **Compute Eigenvalues and Eigenvectors:** 
+# 
+#     Derive the eigenvalues $\{\lambda_i\}$ and eigenvectors $\{v_i\}$ of the covariance matrix $C$. Each eigenvector represents a principal component, and its corresponding eigenvalue indicates the variance explained by that principal component.
+# 
+# 3. **Choose the principal components** 
+# 
+#     Order the eigenvalues in descending order.
+#     
+#     $$ \lambda_1 \geq \lambda_2 \geq \ldots \geq \lambda_D $$
+# 
+#     and select $v_1$, $v_2$, ..., $v_n$ as principal components.
+# 
+# 4. **Data Transformation:** 
+# 
+#     Use the original data $X$ and the chosen principal components to obtain the transformed data $X'$:
+#     
+#     $$ X' = X P_k $$
+#     
+#     where $P_n$ is the matrix with the first $n$ eigenvectors as columns.
+# :::
+
+# Dimensionality reduction techiniques are often used to visualize larger-dimensional data in a 2D or 3D space. Let's apply PCA to our example. 
+# 
+# The following function creates a dataframe with the `n` principal components in the dataset:
+
+# In[35]:
 
 
 def get_pca_result(x, y, n=3):
@@ -889,7 +960,7 @@ def get_pca_result(x, y, n=3):
 
 # The code below prints the outputs from the `get_pca_result` function.
 
-# In[35]:
+# In[36]:
 
 
 df_pc_pca, df_r_pca = get_pca_result(df_x, df_y_40, n=3)
@@ -899,7 +970,7 @@ print(df_r_pca)
 
 # Now let us plot the ratios of explained variances (i.e., the eigenvalues). The intuition is that if the explained variance ratio is larger, the corresponding principal component is more important and can represent more information.
 
-# In[36]:
+# In[37]:
 
 
 # Plot the eigenvalues.
@@ -911,7 +982,7 @@ ax1 = ax1.set(xlabel="Principal Component",
 
 # We can also plot the first and second principal components to see the distribution of labels. In the figure below, we see that label `1` (which means having a smell event) is concentrated on one side. However, it looks like labels `0` and `1` do not separate well, which means that the classifier will have difficulty distinguishing these two groups.
 
-# In[37]:
+# In[38]:
 
 
 # Plot two principal components.
@@ -923,7 +994,7 @@ ax2 = ax2.set(title="Distribution of Labels by Principal Components")
 
 # In the interactive figure below, we can zoom in, zoom out, and rotate the view to check the distribution of labels. We can confirm that label `1` is concentrated on one side. But we also observe that there is a large part of the data that may not be separated well by the classifier (especially linear classifiers). We probably need non-linear classifiers to be able to tell the differences between these two groups.
 
-# In[38]:
+# In[39]:
 
 
 # Use the Plotly package to show the PCA results.
@@ -935,11 +1006,15 @@ fig = px.scatter_3d(df_pc_pca.sample(n=5000), x="PC1", y="PC2", z="PC3",
 fig.show()
 
 
-# Next, let us pick a subset of the sensor data instead of using all of them. Our intuition is that the smell may come from chemical compounds near major pollution sources. From the knowledge of local people, there is a large pollution source, which is the Clairton Mill Works that belongs to the United States Steel Corporation. This pollution source is located at the south part of Pittsburgh. This factory produces petroleum coke, which is a fuel to refine steel. And during the coke refining process, it generates pollutants.
+# <a name="evaluation-metrics"></a>
+
+# ### Evaluation Metrics
+
+# Next, let us pick a subset of the sensor data (instead of using all of them) and prepare the function for computing the evaluation metrics. Our intuition is that the smell may come from chemical compounds near major pollution sources. From the knowledge of local people, there is a large pollution source, which is the Clairton Mill Works that belongs to the United States Steel Corporation. This pollution source is located at the south part of Pittsburgh. This factory produces petroleum coke, which is a fuel to refine steel. And during the coke refining process, it generates pollutants.
 # 
 # One of the pollutant is H2S (hydrogen sulfide), which smells like rotten eggs. We think that H2S near the pollution source may be a good feature. So we first select the column with H2S measurements from a monitoring station near this pollution source. We also think that the day of week and the hour of day may be good features, as the air pollution may have a certain patterns in time.
 
-# In[39]:
+# In[40]:
 
 
 df_x_subset = df_x[["3.feed_28.H2S_PPM_pre_1h", "day_of_week_sine", "day_of_week_cosine", "hour_of_day_sine", "hour_of_day_cosine"]]
@@ -948,7 +1023,7 @@ df_x_subset
 
 # Next, we will train and evaluate a model (F) that maps features (i.e., the sensor readings) to labels (i.e., the smell events). We have the functions ready in the following code cell to help us train and evaluate models.
 
-# In[40]:
+# In[41]:
 
 
 def scorer(model, x, y):
@@ -1010,23 +1085,11 @@ def train_and_evaluate(model, df_x, df_y, train_size=336, test_size=168):
     cv_res = cross_validate(model, df_x, df_y.squeeze(), cv=splits, scoring=scorer)
 
     # Print evaluation metrics.
-    tp = np.sum(cv_res["test_tp"])
-    fp = np.sum(cv_res["test_fp"])
-    tn = np.sum(cv_res["test_tn"])
-    fn = np.sum(cv_res["test_fn"])
     print("================================================")
     print("average f1-score:", round(np.mean(cv_res["test_f1"]), 2))
     print("average precision:", round(np.mean(cv_res["test_precision"]), 2))
     print("average recall:", round(np.mean(cv_res["test_recall"]), 2))
     print("average accuracy:", round(np.mean(cv_res["test_accuracy"]), 2))
-    print("number of true positives:", tp)
-    print("number of false positives:", fp)
-    print("number of true negatives:", tn)
-    print("number of false negatives:", fn)
-    print("total precision:", round(tp/(tp+fp), 2))
-    print("total recall:", round(tp/(tp+fn), 2))
-    print("total f1-score:", round(2*tp/(2*tp+fp+fn), 2))
-    print("total accuracy:", round((tp+tn)/(tp+tn+fp+fn), 2))
     print("================================================")
 
 
@@ -1074,7 +1137,7 @@ def train_and_evaluate(model, df_x, df_y, train_size=336, test_size=168):
 
 # Now that we have explained the evaluation metrics. Let us first use a dummy classifier that always predicts no smell events. In other words, the dummy classifier never predicts "yes" about the presence of smell events. Later we will guide you through using more advanced machine learning models. 
 
-# In[41]:
+# In[42]:
 
 
 dummy_model = DummyClassifier(strategy="constant", constant=0)
@@ -1101,7 +1164,7 @@ train_and_evaluate(dummy_model, df_x_subset, df_y_40, train_size=336, test_size=
 
 # Now, instead of using the dummy classifier, we are going to use a different model. Let us use the Decision Tree model and compare its performance with the dummy classifier.
 
-# In[42]:
+# In[43]:
 
 
 dt_model = DecisionTreeClassifier()
@@ -1130,7 +1193,7 @@ train_and_evaluate(dt_model, df_x_subset, df_y_40, train_size=336, test_size=168
 
 # Now that you have tried the Decision Tree model. Let us use a more advanced model, Random Forest, for smell event prediction.
 
-# In[43]:
+# In[44]:
 
 
 rf_model = RandomForestClassifier()
@@ -1162,7 +1225,7 @@ train_and_evaluate(rf_model, df_x_subset, df_y_40, train_size=336, test_size=168
 # 
 # It turns out that we can permute the data in a specific column to know the importance. If a column (corresponding to a feature) is important, permuting the data specifically for the column will make the model performacne decrease. A higher decrease of a metric (e.g., f1-score) means that the feature is more important. It also means the feature is important for the model to make decisions. So, we can compute the "decrease" of a metric and use it as feature importance. We have provided the function in the following coding block to do this.
 
-# In[44]:
+# In[45]:
 
 
 def compute_feature_importance(model, df_x, df_y, scoring="f1"):
@@ -1199,7 +1262,7 @@ def compute_feature_importance(model, df_x, df_y, scoring="f1"):
     print("=====================================================================")
 
 
-# In[45]:
+# In[46]:
 
 
 compute_feature_importance(rf_model, df_x_subset, df_y_40, scoring="f1")
@@ -1262,7 +1325,7 @@ compute_feature_importance(rf_model, df_x_subset, df_y_40, scoring="f1")
 # - `hour_of_day_sine`
 # - `hour_of_day_cosine`
 
-# In[46]:
+# In[47]:
 
 
 def experiment(df_x, df_y):
@@ -1282,7 +1345,7 @@ def experiment(df_x, df_y):
     ###################################
 
 
-# In[47]:
+# In[48]:
 
 
 experiment(df_x, df_y_40)
@@ -1290,7 +1353,7 @@ experiment(df_x, df_y_40)
 
 # You need to write the function above that can do similar things as the following from the answer.
 
-# In[48]:
+# In[49]:
 
 
 answer_experiment(df_x, df_y_40)

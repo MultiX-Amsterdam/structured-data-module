@@ -34,15 +34,16 @@ Below are the steps to update and build this book. First, clone this repository 
 ```sh
 $ conda create -n jupyterbook
 $ conda activate jupyterbook
-$ conda install python
-$ pip install -U jupyter-book
-$ pip install -U ghp-import
+$ conda install python=3.10
+$ pip install -U jupyter-book==0.13.1
+$ pip install -U ghp-import==2.1.0
 $ jupyter-book --help
 ```
-Then, clone this repository and build the book:
+Then, clone this repository, install packages, and build the book:
 ```sh
 $ git clone https://github.com/MultiX-Amsterdam/structured-data-module
 $ cd structured-data-module
+$ sh install_packages.sh
 $ jupyter-book build .
 ```
 To rebuild the entire book, use the following:
