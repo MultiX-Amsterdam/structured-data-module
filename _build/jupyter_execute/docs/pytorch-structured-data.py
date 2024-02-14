@@ -1,34 +1,68 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # Pytorch Implementation (Structured Data Processing)
+# # PyTorch Implementation (Structured Data Processing)
 
-# (Last updated: Jan 26, 2024)[^credit]
+# (Last updated: Feb 12, 2024)[^credit]
 # 
 # [^credit]: Credit: this teaching material is created by [Yen-Chia Hsu](https://github.com/yenchiah).
+
+# In this practice, we will guide you using the PyTorch deep learning framework to implement a deep regression model on the Smell Pittsburgh dataset. We only provide the basics in this notebook, and the following resources give more detailed information about PyTorch:
+# - [Introduction to PyTorch (Part 1), UvA Deep Learning Course](https://www.youtube.com/watch?v=wnKZZgFQY-E)
+# - [Introduction to PyTorch (Part 2), UvA Deep Learning Course](https://www.youtube.com/watch?v=schbjeU5X2g)
+# - [Deep Learning with PyTorch: A 60 Minute Blitz](https://pytorch.org/tutorials/beginner/deep_learning_60min_blitz.html)
+# 
+# :::{important}
+# To make this notebook work, you need to [install PyTorch](https://pytorch.org/get-started/locally/). You can also copy this notebook (as well as the dataset) to Google Colab and run the notebook on it.
+# :::
+# 
+# First, we begin importing the required packages.
 
 # In[1]:
 
 
 import pandas as pd
 import numpy as np
-from os.path import isfile, join
+from os.path import isfile
+from os.path import join
 from os import listdir
-from copy import deepcopy
-from sklearn.model_selection import cross_validate
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import precision_recall_fscore_support
-from sklearn.metrics import accuracy_score
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
+from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 
-# Below we hide a bunch of functions for preprocessing the data.
+# Then, we need to set the resources that we want to use for computing. On a machine with a GPU (Graphics Processing Unit), we would prefer to use it since a GPU can speed up the computation a lot. On a MacOS computer with advanced chips (e.g., M1 or M2), PyTorch can use the [MPS backend](https://pytorch.org/docs/stable/notes/mps.html) to perform computing.
 
 # In[2]:
+
+
+if torch.cuda.is_available():
+    device = torch.device("cuda") # use CUDA device
+elif torch.backends.mps.is_available():
+    device = torch.device("mps") # use MacOS GPU device (e.g., for M2 chips)
+else:
+    device = torch.device("cpu") # use CPU device
+device
+
+
+# The following code will help you move the data to the device that you choose.
+
+# In[3]:
+
+
+def to_device(data, device):
+    """Move PyTorch objects (e.g., tensors, models) to a chosen device"""
+    if isinstance(data, (list,tuple)):
+        return [to_device(x, device) for x in data]
+    return data.to(device, non_blocking=True)
+
+
+# Below we hide a bunch of functions for preprocessing the data. These functions are from the structured data processing tutorial.
+
+# In[4]:
 
 
 def answer_preprocess_sensor(df_list):
@@ -135,6 +169,10 @@ def answer_sum_current_and_future_data(df, n_hr=0):
     # Becasue window size 1 means only using the current data.
     # Parameter "closed" need to be "right" because we want the current data.
     df = df.rolling(n_hr+1, min_periods=1, closed="right").sum().shift(-1*n_hr)
+
+    # Below is an alternative implementation of rolling.
+    #indexer = FixedForwardWindowIndexer(window_size=n_hr+1)
+    #df = df.rolling(indexer, min_periods=1).sum()
 
     # Delete the last n_hr rows.
     # These n_hr rows have wrong data due to data shifting.
@@ -285,8 +323,8 @@ def compute_feature_label(df_smell, df_sensor, b_hr_sensor=0, f_hr_smell=0):
     assert df.isna().sum().sum() == 0, "Error! There is missing data."
 
     # Separate features (x) and labels (y).
-    df_x = df[df_sensor.columns]
-    df_y = df[df_smell.columns]
+    df_x = df[df_sensor.columns].copy()
+    df_y = df[df_smell.columns].copy()
 
     # Add the hour of day and the day of week.
     dow_radian = df["EpochTime"].dt.dayofweek.copy(deep=True) * 2 * np.pi / 6.0
@@ -298,7 +336,9 @@ def compute_feature_label(df_smell, df_sensor, b_hr_sensor=0, f_hr_smell=0):
     return df_x, df_y
 
 
-# In[3]:
+# Now, we need to load and preprocess the dataset using the code in the structured data processing tutorial.
+
+# In[5]:
 
 
 # Load and preprocess sensor data
@@ -316,30 +356,38 @@ df_smell = answer_preprocess_smell(smell_raw)
 # Compute features and labels
 df_x, df_y = compute_feature_label(df_smell, df_sensor, b_hr_sensor=2, f_hr_smell=7)
 
-
-# In[4]:
-
-
-df_x
-
-
-# In[5]:
-
-
-df_y
+# Use value 40 as the threshold to indicate a smell event
+# In this way, we make it a binary classification problem
+df_y = (df_y>=40).astype(int)
 
 
 # In[6]:
 
 
-# Set random seed for reproducibility
-torch.manual_seed(42)
+df_x
 
-# Load data
-feature = df_x[df_x.columns].to_numpy()
-label = (df_y>=40).astype(int)['smell_value_future_8h'].to_numpy()
 
-# Create the dataset object
+# In[7]:
+
+
+df_y
+
+
+# We now have the dataset ready in Pandas. To make it work for PyTorch, we need to first convert the `pandas.DataFrame` object to a `torch.Tensor` object with the `torch.float32` data type (because our PyTorch model will take this data type as the input). The PyTorch tensor object is similar to `numpy.array` but with more functions to support GPU (Graphics Processing Unit) computing. GPU can perform matrix operations much more efficiently than CPU (Central Processing Unit), and people usually use PyTorch to benefit from its powerful GPU computing support. The following code does the conversion. For more information about tensors, check this [UvA deep learning tutorial](https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/tutorial2/Introduction_to_PyTorch.html#Tensors) and this [PyTorch documentation](https://pytorch.org/tutorials/beginner/introyt/tensors_deeper_tutorial.html).
+
+# In[8]:
+
+
+# Convert pandas.DataFrame to torch.Tensor with type torch.float32
+feature = torch.from_numpy(df_x.to_numpy()).float()
+label = torch.from_numpy(df_y.to_numpy()).float()
+
+
+# Next, we need to create a `torch.utils.data.Dataset` class, which is a uniform interface for loading data. More description about the PyTorch dataset class can be found in this [UvA deep learning tutorial](https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/tutorial2/Introduction_to_PyTorch.html#The-dataset-class) and this [PyTorch documentation](https://pytorch.org/tutorials/beginner/data_loading_tutorial.html#dataset-class).
+
+# In[9]:
+
+
 class SmellPittsburghDataset(Dataset):
     def __init__(self, feature=None, label=None):
         self.feature = feature
@@ -349,179 +397,257 @@ class SmellPittsburghDataset(Dataset):
         return len(self.feature)
 
     def __getitem__(self, idx):
-        x = self.feature[idx]
-        y = self.label[idx]
-        x = torch.from_numpy(x).float()
-        y = torch.from_numpy(np.array([y])).float()
-        return x, y
+        return self.feature[idx], self.label[idx]
 
 
-# In[7]:
+# We can use the dataset to create a training and validation set. In the code below, we use the first 8000 data points as the training set, followed by 168 data points as the validation set. We will use the training set to train the model and the validation set for evaluating model performance. In this case, 8000 data points mean 8000 hours, which is about 11 months in real-world time, and 168 data points represent about 7 days of time. The reason for doing this kind of split is because Smell Pittsburgh is a time-series dataset, which means we should use data from the past to predict the outcome in the future, but not the other way around.
+
+# In[10]:
 
 
-def scorer(y_predict, y):
+train_size = 8000
+validation_size = 168
+test_size = 168
+i = 0
+j = i + 8000
+k = j + 168
+dataset_train = SmellPittsburghDataset(feature=feature[i:j], label=label[i:j])
+dataset_validation = SmellPittsburghDataset(feature=feature[j:k], label=label[j:k])
+
+
+# Then, let us define a scoring function to evaluate the model performance for binary classification. The function takes two inputs: one is the array of predicted labels, and the other one is the true labels. In this case, we use precision, recall, and F1 score. Notice that we do a small trick here to return empty arrays of the output when the input is `None`, which will be handy later when we need to keep appending the scores into arrays of metrics.
+
+# In[11]:
+
+
+def binary_scorer(y_predict=None, y=None):
     """
-    A customized scoring function to evaluate a PyTorch classifier.
+    A customized scoring function to evaluate a binary classifier.
 
     Parameters
     ----------
     y_predict : torch.Tensor
-        The predicted labels.
+        The predicted binary labels in 0 (negative) or 1 (positive).
     y : torch.Tensor
-        The true labels.
+        The true binary labels in 0 (negative) or 1 (positive).
 
     Returns
     -------
     dict of int or float
         A dictionary of evaluation metrics.
     """
-    c = confusion_matrix(y, y_predict, labels=[0,1])
-    return {"tn": c[0,0], "fp": c[0,1], "fn": c[1,0], "tp": c[1,1]}
+    if y_predict is not None and y is not None:
+        # Compute metrics and return them
+        eq = (y_predict == y)
+        tp = (eq & (y_predict == 1)).sum()
+        tn = (eq & (y_predict == 0)).sum()
+        fp = (y_predict > y).sum()
+        fn = (y_predict < y).sum()
+        tpfp = tp + fp
+        tpfn = tp + fn
+        precision = 0 if tpfp == 0 else float(tp)/float(tpfp)
+        recall = 0 if tpfn == 0 else float(tp)/float(tpfn)
+        fscore = 0 if precision+recall==0 else 2*(precision*recall)/(precision+recall)
+        return {"precision": precision, "recall": recall, "fscore": fscore}
+    else:
+        # Return the structure of the dictionary with empty arrays for initialization
+        return {"precision": [], "recall": [], "fscore": []}
 
 
-# In[8]:
+# Next, we need to train the model for multiple epochs, which means running through all the available data multiple times in the training set. Different from the traditional gradient descent, deep learning models use [Stochastic Gradient Descent (SGD) with mini-batches](http://d2l.ai/chapter_optimization/minibatch-sgd.html), which takes batches of data points (instead of all data). For more information about SGD, check [this StatQuest video](https://www.youtube.com/watch?v=vMh0zPT0tLI).
+# 
+# The reason for using mini-batch SGD is because training supervised deep learning models typically requires a lot of data (i.e., this is called many-shot learning now), and it is often impossible to fit all data into computer memory, so we have to feed the data to the optimization algorithm in batches. Also, training deep learning models usually requires going through all data points multiple times (i.e., multiple epochs). Batch size is a hyperparameter for tuning.
+# 
+# Now let us create a `torch.utils.data.DataLoader` object, which is a way to load data efficiently and is extremely beneficial if you cannot fit all data into computer memory at once (e.g., a bunch of videos). More information about DataLoader can be found in this [UvA deep learning tutorial](https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/tutorial2/Introduction_to_PyTorch.html#The-data-loader-class) or this [PyTorch documentation](https://pytorch.org/tutorials/beginner/basics/data_tutorial.html#preparing-your-data-for-training-with-dataloaders). The DataLoader object also allows us to load data in batches by specifying the batch size. Notice that we only want to shuffle the training set here, not the validation set. 
+# 
+# :::{important}
+# When writing PyTorch code for training deep learning models, the first important thing is to get `torch.utils.data.Dataset` and `torch.utils.data.DataLoader` objects ready.
+# :::
+
+# In[12]:
 
 
-def train(model, criterion, optimizer, dataloader_train, dataloader_test, num_epochs=30):
-    """Train the model."""
-
-    def run_one_epoch(dataloader, phase="train"):
-        if phase == "train": model.train() # training mode
-        else: model.eval() # evaluation mode
-        c = 0 # just a counter
-        accu_loss = 0 # accumulated loss
-        accu_score = None # accumulated scores
-        # Loop the data
-        for x, y in dataloader:
-            c += 1 # increase the counter
-            y_pred = model(x)
-            loss = criterion(y_pred, y)
-            if phase == "train":
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-            # Store statistics for the training set
-            accu_loss += loss # add up the loss
-            y_label = (y_pred > 0.5).float()
-            score = scorer(y_label, y)
-            if accu_score is None:
-                accu_score = score
-            else:
-                for k in score:
-                    accu_score[k] += score[k]
-        # Return statistics
-        return accu_loss/c, accu_score
-
-    def compute_statistics(score):
-        tp_fp = score["tp"] + score["fp"]
-        if tp_fp == 0:
-            precision = 0
-        else:
-            precision = round(score["tp"]/tp_fp, 2)
-        tp_fn = score["tp"] + score["fn"]
-        if tp_fn == 0:
-            recall = 0
-        else:
-            recall = round(score["tp"]/tp_fn, 2)
-        tp_tp_fp_fn = tp_fp + tp_fn
-        if tp_tp_fp_fn == 0:
-            f1 = 0
-        else:
-            f1 = round(2*score["tp"]/tp_tp_fp_fn, 2)
-        return precision, recall, f1
-
-    # Run one epoch
-    for epoch in range(num_epochs):
-        # Run through the entire training set
-        loss_train, score_train = run_one_epoch(dataloader_train, phase="train")
-        loss_train = torch.round(loss_train, decimals=2)
-        p_train, r_train, f1_train = compute_statistics(score_train)
-        # Run through the entire testing set
-        with torch.no_grad():
-            loss_test, score_test = run_one_epoch(dataloader_test, phase="test")
-        loss_test = torch.round(loss_test, decimals=2)
-        p_test, r_test, f1_test = compute_statistics(score_test)
-        # Print loss and scores
-        if ((epoch+1)%30 == 0):
-            print(f"-"*10)
-            print(f"Epoch [{epoch+1}/{num_epochs}]")
-            print(f"Training loss: {loss_train:.4f}, prevision: {p_train:.2f}, recall: {r_train:.2f}, f1: {f1_train:.2f}")
-            print(f"Training evaluation: {score_train}")
-            print(f"Testing loss: {loss_test:.4f}, prevision: {p_test:.2f}, recall: {r_test:.2f}, f1: {f1_test:.2f}")
-            print(f"Testing evaluation: {score_test}")
-
-    # Return statistics
-    return p_test, r_test, f1_test
+dataloader_train = DataLoader(dataset_train, batch_size=168, shuffle=True)
+dataloader_validation = DataLoader(dataset_validation, batch_size=168, shuffle=False)
 
 
-# In[9]:
+# To allow the DataLoader to use the device that we specified at the beginning of this notebook, we need to use the following code.
+
+# In[13]:
 
 
-# Define neural network model
-class DeepLogisticRegression(nn.Module):
+class DeviceDataLoader():
+    """Wrap a dataloader to move data to a chosen device"""
+    def __init__(self, dl, device):
+        self.dl = dl
+        self.device = device
+        
+    def __iter__(self):
+        """Yield a batch of data after moving it to device"""
+        for b in self.dl:
+            yield to_device(b, self.device)
+
+    def __len__(self):
+        """Number of batches"""
+        return len(self.dl)
+
+
+# Now, we can move the DataLoader objects to the specified device.
+
+# In[14]:
+
+
+dataloader_train = DeviceDataLoader(dataloader_train, device)
+dataloader_validation = DeviceDataLoader(dataloader_validation, device)
+
+
+# Next, we need to define the deep regression model. We use two layers of linear neurons. The first layer maps the features to 64 hidden units (i.e., linear neurons), and the second layer maps 64 hidden units to one single output (i.e., whether there is a smell event or not).
+# 
+# Notice that for computational efficiency, we do not need to ensure that the output is probability since the loss function that we will define later already does this job for us (i.e., the [torch.nn.BCEWithLogitsLoss](https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html)). We only need to make sure that it is probability later when we are going to use the model to make predictions of events for our task.
+# 
+# In the forward function, we define how the network will pass the result from each layer to the next layer. We use the ReLU activation function between the first and second layers to introduce some non-linearity. We do not need to define a backward function since PyTorch can automatically compute and backpropagate the gradients for us to iteratively update the model weights.
+# 
+# In this case, we choose to use 64 hidden units for demonstration purposes. In reality, this is a hyperparameter that you can tune. The input size should match the number of features (otherwise, running the code will give an error).
+
+# In[15]:
+
+
+class DeepRegression(nn.Module):
     def __init__(self, input_size, hidden_size=64, output_size=1):
-        super(DeepLogisticRegression, self).__init__()
+        super(DeepRegression, self).__init__()
         self.linear1 = nn.Linear(input_size, hidden_size)
         self.relu = nn.ReLU()
         self.linear2 = nn.Linear(hidden_size, output_size)
-        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
         out = self.linear1(x)
         out = self.relu(out)
         out = self.linear2(out)
-        out = self.sigmoid(out)
         return out
 
 
-# In[10]:
+# We are getting close to being able to train the model. The last three things that we need are to create the model object, specify the loss function (for the optimization algorithm to compute the error so that PyTorch can compute and backpropagate the gradients to update the model weights), and define the optimizer (i.e., the optimization algorithm).
+# 
+# Regarding the model, the code above defines a class. To be able to use it, we need to use the class to create an object. Think about a class as a design specification (e.g., spec for a car) and an object as producing the real design artifact (e.g., a real car). Regarding the loss criterion, we use the [Binary Cross Entropy (BCE) loss function](https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/tutorial2/Introduction_to_PyTorch.html#Loss-modules), which is standard for binary classification. Notice that we are not using [torch.nn.BCELoss](https://pytorch.org/docs/stable/generated/torch.nn.BCELoss.html) for computational efficiency. The [torch.nn.BCEWithLogitsLoss](https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html) that we use instead here can take care of the job of transforming the output of the final neural network layer into probabilities.
+# 
+# Regarding the optimizer, we use the [Adam optimization algorithm](https://arxiv.org/pdf/1412.6980.pdf), which is a variation of Stochastic Gradient Descent with advanced capabilities in scheduling learning rates and scaling the gradients dynamically. Here, we use `0.0005` as the learning rate and `0.0001` as the weight decay for regularization. Adding the regularization can make the training more stable and prevent overfitting. In reality, they are hyperparameters for tuning.
+
+# In[16]:
 
 
-# Create time series splits for cross-validation.
-splits = []
-dataset_size = df_x.shape[0]
-train_size = 8000
-test_size = 168
-input_size = feature.shape[1]
-for i in range(train_size, dataset_size, test_size):
-    start = i - train_size
-    end = i + test_size
-    if (end >= dataset_size): break
-    train_index = range(start, i)
-    test_index = range(i, end)
-    splits.append((list(train_index), list(test_index)))
-
-# Cross-validate the model for every split
-precision_list = []
-recall_list = []
-f1_list = []
-for i in range(len(splits)):
-    print(f"Split: {i}")
-    dataset_train = SmellPittsburghDataset(feature=feature[splits[i][0]], label=label[splits[i][0]])
-    dataset_test = SmellPittsburghDataset(feature=feature[splits[i][1]], label=label[splits[i][1]])
-    dataloader_train = DataLoader(dataset_train, batch_size=1024, shuffle=True)
-    dataloader_test = DataLoader(dataset_test, batch_size=1024, shuffle=False)
-    model = DeepLogisticRegression(input_size)
-    criterion = nn.BCELoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.01)
-    p_test, r_test, f1_test = train(model, criterion, optimizer, dataloader_train, dataloader_test)
-    precision_list.append(p_test)
-    recall_list.append(r_test)
-    f1_list.append(f1_test)
-    print("="*30)
+model = DeepRegression(feature.shape[1])
+model = to_device(model, device) # move the model to the specified device
+criterion = nn.BCEWithLogitsLoss()
+optimizer = optim.Adam(model.parameters(), lr=0.0005, weight_decay=0.0001)
 
 
-# In[11]:
+# Finally, we can use the following function to train the model for multiple epochs and return the model performance metrics. We will use the [`tqdm` package](https://tqdm.github.io/) for help in tracking the progress in the for-loop, which is handy for deep learning code that can take a long time to run.
+# 
+# As mentioned before, the output of the model is not probability for computational efficiency. But when computing the model performance, we need the probability to determine how likely there will be smell events. We will use the Sigmoid function to convert the output from the final layer to probabilities that sum up to one. Then, we can check if the probability is larger than a threshold (e.g., 0.5).
+
+# In[17]:
 
 
-# Print the overall performance
-print("average precision:", round(np.mean(precision_list), 2))
-print("average recall:", round(np.mean(recall_list), 2))
-print("average f1-score:", round(np.mean(f1_list), 2))
+def train_model(dataloader, model, criterion, optimizer, num_epochs):
+    """
+    Train a PyTorch model and print model performance metrics.
+
+    Parameters
+    ----------
+    dataloader : torch.utils.data.DataLoader
+        The dataloader object.
+    model : torch.nn.Module
+        The PyTorch model that we want to train.
+    criterion : torch.nn.modules.loss._Loss
+        The loss function.
+    optimizer : torch.optim.Optimizer
+        The optimization algorithm.
+    num_epochs : int
+        Number of epochs for training the model.
+    """
+    model.train() # set the model to training mode
+    # Loop epochs
+    for epoch in tqdm(range(num_epochs)):
+        score_arrays = binary_scorer() # get the empty structure
+        score_arrays["loss"] = [] # add the field for appending the loss
+        # Loop the dataloader
+        for x, y in dataloader:
+            y_pred = model(x) # make predictions using the model
+            loss = criterion(y_pred, y) # compute the loss
+            optimizer.zero_grad() # set initial gradients to zero
+            loss.backward() # accumulate and backpropagate the gradients
+            optimizer.step() # update model weights
+            score_arrays["loss"].append(loss.item()) # append the loss
+            y_label = torch.sigmoid(y_pred) # turn model output into probabilities
+            y_label = (y_pred > 0.5).float() # turn probabilities to labels with 0 or 1
+            score = binary_scorer(y_label, y) # compute evaluation metrics
+            # Append the evaluation metrics to the arrays
+            for k in score:
+                score_arrays[k].append(score[k])
+        # After every 10 epochs, print the averaged evaluation metrics
+        if epoch % 10 == 0:
+            print("="*40)
+            print("Epoch %d" % epoch)
+            for k in score_arrays:
+                print("averaged training %s: %4f" % (k, np.mean(score_arrays[k])))
 
 
-# In[ ]:
+# Next, we need a function to evaluate the model on the valiation or test set.
+
+# In[18]:
 
 
+def evaluate_model(dataloader, model):
+    """
+    Evaluate a PyTorch model and print model performance metrics.
 
+    Parameters
+    ----------
+    dataloader : torch.utils.data.DataLoader
+        The dataloader object.
+    model : torch.nn.Module
+        The PyTorch model that we want to train.
+    """
+    model.eval() # set the model to evaluation mode
+    # Since we do not want to train the model, make sure that we deactivate the gradients
+    with torch.no_grad():
+        score_arrays = binary_scorer() # get the empty structure
+        # Loop the dataloader
+        for x, y in dataloader:
+            y_pred = model(x) # make predictions using the model
+            y_label = torch.sigmoid(y_pred) # turn model output into probabilities
+            y_label = (y_pred > 0.5).float() # turn probabilities to labels with 0 or 1
+            score = binary_scorer(y_label, y) # compute evaluation metrics
+            # Append the evaluation metrics to the arrays
+            for k in score:
+                score_arrays[k].append(score[k])
+    # Print the averaged evaluation metrics
+    print("="*40)
+    print("="*40)
+    print("Validate model performance:")
+    for k in score_arrays:
+        print("averaged validation %s: %4f" % (k, np.mean(score_arrays[k])))
+
+
+# Finally, we can now run the functions to train the model for 30 epochs and evaluate the model on the validation set. In practice, you can run the model for many epochs, save the model for every X epochs (e.g., X=5), and pick the model with the highest performance on the validation set.
+
+# In[19]:
+
+
+train_model(dataloader_train, model, criterion, optimizer, 30)
+evaluate_model(dataloader_train, model)
+
+
+# ## Your Task
+
+# We have used the deep regression model to perform smell event classification on the Smell Pittsburgh dataset. Now, your task is to implement cross-validation (similar to the one that is used in the structured data processing tutorial) and perform hyperparameter tuning. Write your code below and print the averaged precision, recall, and F1 score after performing cross-validation and hyperparameter tuning. There are four hyperparameters that you can tune: the hidden unit size of the model, learning rate, weight decay, and batch size.
+# 
+# Notice that you also need to allocate a test set to have a more objective estimation of model performance. The test set cannot be seen by the model during hyperparameter tuning. Report also the precision, recall, and F1 score for the test set.
+# 
+# Optionally, you can also change the model architecture, such as adding more layers or changing the activation function. Have fun playing with deep learning models!
+
+# In[20]:
+
+
+# Write your code here
 

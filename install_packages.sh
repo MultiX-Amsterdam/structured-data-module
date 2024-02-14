@@ -14,3 +14,5 @@ pip install --upgrade plotly~=5.18
 pip install --upgrade scikit-learn~=1.4
 pip install --upgrade seaborn~=0.13
 pip install --upgrade pytz~=2024.1
+pip install --upgrade tqdm~=4.66
+pip install --upgrade pyarrow~=15.0.0

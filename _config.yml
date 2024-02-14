@@ -8,7 +8,7 @@ author: Yen-Chia Hsu
 # See https://jupyterbook.org/content/execute.html
 execute:
   exclude_patterns:
-    - "docs/pytorch-structured-data*"
+    - "docs/*"
   execute_notebooks: cache
   timeout: 600
 
