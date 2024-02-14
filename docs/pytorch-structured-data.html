@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Pytorch Implementation (Structured Data Processing) &#8212; Structured Data Processing</title>
+    <title>PyTorch Implementation (Structured Data Processing) &#8212; Structured Data Processing</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -319,23 +319,60 @@ title="Print to PDF"
     </ul>
   </div>
 </div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
 
     </div>
 </div>
 
 <!-- Table of contents -->
 <div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#your-task">
+   Your Task
+  </a>
+ </li>
+</ul>
+
+    </nav>
 </div>
     </div>
     <div class="article row">
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>Pytorch Implementation (Structured Data Processing)</h1>
+                <h1>PyTorch Implementation (Structured Data Processing)</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
                         
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#your-task">
+   Your Task
+  </a>
+ </li>
+</ul>
+
+                        </nav>
                     </div>
                 </div>
             </div>
@@ -344,29 +381,68 @@ title="Print to PDF"
               <div>
                 
   <section class="tex2jax_ignore mathjax_ignore" id="pytorch-implementation-structured-data-processing">
-<h1>Pytorch Implementation (Structured Data Processing)<a class="headerlink" href="#pytorch-implementation-structured-data-processing" title="Permalink to this headline">#</a></h1>
-<p>(Last updated: Jan 26, 2024)<a class="footnote-reference brackets" href="#credit" id="id1">1</a></p>
+<h1>PyTorch Implementation (Structured Data Processing)<a class="headerlink" href="#pytorch-implementation-structured-data-processing" title="Permalink to this headline">#</a></h1>
+<p>(Last updated: Feb 12, 2024)<a class="footnote-reference brackets" href="#credit" id="id1">1</a></p>
+<p>In this practice, we will guide you using the PyTorch deep learning framework to implement a deep regression model on the Smell Pittsburgh dataset. We only provide the basics in this notebook, and the following resources give more detailed information about PyTorch:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=wnKZZgFQY-E">Introduction to PyTorch (Part 1), UvA Deep Learning Course</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=schbjeU5X2g">Introduction to PyTorch (Part 2), UvA Deep Learning Course</a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/beginner/deep_learning_60min_blitz.html">Deep Learning with PyTorch: A 60 Minute Blitz</a></p></li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>To make this notebook work, you need to <a class="reference external" href="https://pytorch.org/get-started/locally/">install PyTorch</a>. You can also copy this notebook (as well as the dataset) to Google Colab and run the notebook on it.</p>
+</div>
+<p>First, we begin importing the required packages.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">isfile</span><span class="p">,</span> <span class="n">join</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">isfile</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span>
 <span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">listdir</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">cross_validate</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">confusion_matrix</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">precision_recall_fscore_support</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span>
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
 <span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="nn">optim</span>
-<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">DataLoader</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 </pre></div>
 </div>
 </div>
 </div>
-<p>Below we hide a bunch of functions for preprocessing the data.</p>
+<p>Then, we need to set the resources that we want to use for computing. On a machine with a GPU (Graphics Processing Unit), we would prefer to use it since a GPU can speed up the computation a lot. On a MacOS computer with advanced chips (e.g., M1 or M2), PyTorch can use the <a class="reference external" href="https://pytorch.org/docs/stable/notes/mps.html">MPS backend</a> to perform computing.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span> <span class="c1"># use CUDA device</span>
+<span class="k">elif</span> <span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">mps</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;mps&quot;</span><span class="p">)</span> <span class="c1"># use MacOS GPU device (e.g., for M2 chips)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span> <span class="c1"># use CPU device</span>
+<span class="n">device</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>device(type=&#39;mps&#39;)
+</pre></div>
+</div>
+</div>
+</div>
+<p>The following code will help you move the data to the device that you choose.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">to_device</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Move PyTorch objects (e.g., tensors, models) to a chosen device&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span><span class="nb">tuple</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">to_device</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">non_blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Below we hide a bunch of functions for preprocessing the data. These functions are from the structured data processing tutorial.</p>
 <div class="cell tag_hide-cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_preprocess_sensor</span><span class="p">(</span><span class="n">df_list</span><span class="p">):</span>
@@ -473,6 +549,10 @@ title="Print to PDF"
     <span class="c1"># Becasue window size 1 means only using the current data.</span>
     <span class="c1"># Parameter &quot;closed&quot; need to be &quot;right&quot; because we want the current data.</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">n_hr</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">n_hr</span><span class="p">)</span>
+
+    <span class="c1"># Below is an alternative implementation of rolling.</span>
+    <span class="c1">#indexer = FixedForwardWindowIndexer(window_size=n_hr+1)</span>
+    <span class="c1">#df = df.rolling(indexer, min_periods=1).sum()</span>
 
     <span class="c1"># Delete the last n_hr rows.</span>
     <span class="c1"># These n_hr rows have wrong data due to data shifting.</span>
@@ -623,8 +703,8 @@ title="Print to PDF"
     <span class="k">assert</span> <span class="n">df</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Error! There is missing data.&quot;</span>
 
     <span class="c1"># Separate features (x) and labels (y).</span>
-    <span class="n">df_x</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df_sensor</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
-    <span class="n">df_y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df_smell</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+    <span class="n">df_x</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df_sensor</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">df_y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df_smell</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="c1"># Add the hour of day and the day of week.</span>
     <span class="n">dow_radian</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;EpochTime&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">dayofweek</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">6.0</span>
@@ -638,6 +718,7 @@ title="Print to PDF"
 </div>
 </div>
 </div>
+<p>Now, we need to load and preprocess the dataset using the code in the structured data processing tutorial.</p>
 <div class="cell tag_output_scroll docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load and preprocess sensor data</span>
@@ -654,16 +735,10 @@ title="Print to PDF"
 
 <span class="c1"># Compute features and labels</span>
 <span class="n">df_x</span><span class="p">,</span> <span class="n">df_y</span> <span class="o">=</span> <span class="n">compute_feature_label</span><span class="p">(</span><span class="n">df_smell</span><span class="p">,</span> <span class="n">df_sensor</span><span class="p">,</span> <span class="n">b_hr_sensor</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">f_hr_smell</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/xr/ddxdh8x16q53_r8yf2zj9m600000gn/T/ipykernel_13861/4187725043.py:261: SettingWithCopyWarning: 
-A value is trying to be set on a copy of a slice from a DataFrame.
-Try using .loc[row_indexer,col_indexer] = value instead
 
-See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
-  df_x.loc[:,&quot;day_of_week_sine&quot;] = np.sin(dow_radian)
+<span class="c1"># Use value 40 as the threshold to indicate a smell event</span>
+<span class="c1"># In this way, we make it a binary classification problem</span>
+<span class="n">df_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_y</span><span class="o">&gt;=</span><span class="mi">40</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1017,23 +1092,23 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
   <tbody>
     <tr>
       <th>0</th>
-      <td>8.0</td>
+      <td>0</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>5.0</td>
+      <td>0</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>5.0</td>
+      <td>0</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>5.0</td>
+      <td>0</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>5.0</td>
+      <td>0</td>
     </tr>
     <tr>
       <th>...</th>
@@ -1041,40 +1116,43 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
     </tr>
     <tr>
       <th>16746</th>
-      <td>6.0</td>
+      <td>0</td>
     </tr>
     <tr>
       <th>16747</th>
-      <td>6.0</td>
+      <td>0</td>
     </tr>
     <tr>
       <th>16748</th>
-      <td>6.0</td>
+      <td>0</td>
     </tr>
     <tr>
       <th>16749</th>
-      <td>3.0</td>
+      <td>0</td>
     </tr>
     <tr>
       <th>16750</th>
-      <td>11.0</td>
+      <td>0</td>
     </tr>
   </tbody>
 </table>
 <p>16751 rows × 1 columns</p>
 </div></div></div>
 </div>
+<p>We now have the dataset ready in Pandas. To make it work for PyTorch, we need to first convert the <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> object to a <code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code> object with the <code class="docutils literal notranslate"><span class="pre">torch.float32</span></code> data type (because our PyTorch model will take this data type as the input). The PyTorch tensor object is similar to <code class="docutils literal notranslate"><span class="pre">numpy.array</span></code> but with more functions to support GPU (Graphics Processing Unit) computing. GPU can perform matrix operations much more efficiently than CPU (Central Processing Unit), and people usually use PyTorch to benefit from its powerful GPU computing support. The following code does the conversion. For more information about tensors, check this <a class="reference external" href="https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/tutorial2/Introduction_to_PyTorch.html#Tensors">UvA deep learning tutorial</a> and this <a class="reference external" href="https://pytorch.org/tutorials/beginner/introyt/tensors_deeper_tutorial.html">PyTorch documentation</a>.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set random seed for reproducibility</span>
-<span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-
-<span class="c1"># Load data</span>
-<span class="n">feature</span> <span class="o">=</span> <span class="n">df_x</span><span class="p">[</span><span class="n">df_x</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="n">label</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_y</span><span class="o">&gt;=</span><span class="mi">40</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)[</span><span class="s1">&#39;smell_value_future_8h&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-
-<span class="c1"># Create the dataset object</span>
-<span class="k">class</span> <span class="nc">SmellPittsburghDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Convert pandas.DataFrame to torch.Tensor with type torch.float32</span>
+<span class="n">feature</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">df_x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+<span class="n">label</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">df_y</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, we need to create a <code class="docutils literal notranslate"><span class="pre">torch.utils.data.Dataset</span></code> class, which is a uniform interface for loading data. More description about the PyTorch dataset class can be found in this <a class="reference external" href="https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/tutorial2/Introduction_to_PyTorch.html#The-dataset-class">UvA deep learning tutorial</a> and this <a class="reference external" href="https://pytorch.org/tutorials/beginner/data_loading_tutorial.html#dataset-class">PyTorch documentation</a>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SmellPittsburghDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">feature</span> <span class="o">=</span> <span class="n">feature</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">label</span>
@@ -1083,607 +1161,298 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">y</span><span class="p">]))</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
 </div>
+<p>We can use the dataset to create a training and validation set. In the code below, we use the first 8000 data points as the training set, followed by 168 data points as the validation set. We will use the training set to train the model and the validation set for evaluating model performance. In this case, 8000 data points mean 8000 hours, which is about 11 months in real-world time, and 168 data points represent about 7 days of time. The reason for doing this kind of split is because Smell Pittsburgh is a time-series dataset, which means we should use data from the past to predict the outcome in the future, but not the other way around.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">scorer</span><span class="p">(</span><span class="n">y_predict</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">train_size</span> <span class="o">=</span> <span class="mi">8000</span>
+<span class="n">validation_size</span> <span class="o">=</span> <span class="mi">168</span>
+<span class="n">test_size</span> <span class="o">=</span> <span class="mi">168</span>
+<span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">8000</span>
+<span class="n">k</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">168</span>
+<span class="n">dataset_train</span> <span class="o">=</span> <span class="n">SmellPittsburghDataset</span><span class="p">(</span><span class="n">feature</span><span class="o">=</span><span class="n">feature</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">j</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">j</span><span class="p">])</span>
+<span class="n">dataset_validation</span> <span class="o">=</span> <span class="n">SmellPittsburghDataset</span><span class="p">(</span><span class="n">feature</span><span class="o">=</span><span class="n">feature</span><span class="p">[</span><span class="n">j</span><span class="p">:</span><span class="n">k</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">[</span><span class="n">j</span><span class="p">:</span><span class="n">k</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Then, let us define a scoring function to evaluate the model performance for binary classification. The function takes two inputs: one is the array of predicted labels, and the other one is the true labels. In this case, we use precision, recall, and F1 score. Notice that we do a small trick here to return empty arrays of the output when the input is <code class="docutils literal notranslate"><span class="pre">None</span></code>, which will be handy later when we need to keep appending the scores into arrays of metrics.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">binary_scorer</span><span class="p">(</span><span class="n">y_predict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A customized scoring function to evaluate a PyTorch classifier.</span>
+<span class="sd">    A customized scoring function to evaluate a binary classifier.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    y_predict : torch.Tensor</span>
-<span class="sd">        The predicted labels.</span>
+<span class="sd">        The predicted binary labels in 0 (negative) or 1 (positive).</span>
 <span class="sd">    y : torch.Tensor</span>
-<span class="sd">        The true labels.</span>
+<span class="sd">        The true binary labels in 0 (negative) or 1 (positive).</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    dict of int or float</span>
 <span class="sd">        A dictionary of evaluation metrics.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">c</span> <span class="o">=</span> <span class="n">confusion_matrix</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y_predict</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;tn&quot;</span><span class="p">:</span> <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;fp&quot;</span><span class="p">:</span> <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;tp&quot;</span><span class="p">:</span> <span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]}</span>
+    <span class="k">if</span> <span class="n">y_predict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Compute metrics and return them</span>
+        <span class="n">eq</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_predict</span> <span class="o">==</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">tp</span> <span class="o">=</span> <span class="p">(</span><span class="n">eq</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y_predict</span> <span class="o">==</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">tn</span> <span class="o">=</span> <span class="p">(</span><span class="n">eq</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y_predict</span> <span class="o">==</span> <span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">fp</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_predict</span> <span class="o">&gt;</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_predict</span> <span class="o">&lt;</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">tpfp</span> <span class="o">=</span> <span class="n">tp</span> <span class="o">+</span> <span class="n">fp</span>
+        <span class="n">tpfn</span> <span class="o">=</span> <span class="n">tp</span> <span class="o">+</span> <span class="n">fn</span>
+        <span class="n">precision</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">tpfp</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">tp</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">tpfp</span><span class="p">)</span>
+        <span class="n">recall</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">tpfn</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">tp</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">tpfn</span><span class="p">)</span>
+        <span class="n">fscore</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">precision</span><span class="o">+</span><span class="n">recall</span><span class="o">==</span><span class="mi">0</span> <span class="k">else</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">precision</span><span class="o">*</span><span class="n">recall</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">precision</span><span class="o">+</span><span class="n">recall</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;precision&quot;</span><span class="p">:</span> <span class="n">precision</span><span class="p">,</span> <span class="s2">&quot;recall&quot;</span><span class="p">:</span> <span class="n">recall</span><span class="p">,</span> <span class="s2">&quot;fscore&quot;</span><span class="p">:</span> <span class="n">fscore</span><span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Return the structure of the dictionary with empty arrays for initialization</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;precision&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;recall&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;fscore&quot;</span><span class="p">:</span> <span class="p">[]}</span>
 </pre></div>
 </div>
 </div>
 </div>
+<p>Next, we need to train the model for multiple epochs, which means running through all the available data multiple times in the training set. Different from the traditional gradient descent, deep learning models use <a class="reference external" href="http://d2l.ai/chapter_optimization/minibatch-sgd.html">Stochastic Gradient Descent (SGD) with mini-batches</a>, which takes batches of data points (instead of all data). For more information about SGD, check <a class="reference external" href="https://www.youtube.com/watch?v=vMh0zPT0tLI">this StatQuest video</a>.</p>
+<p>The reason for using mini-batch SGD is because training supervised deep learning models typically requires a lot of data (i.e., this is called many-shot learning now), and it is often impossible to fit all data into computer memory, so we have to feed the data to the optimization algorithm in batches. Also, training deep learning models usually requires going through all data points multiple times (i.e., multiple epochs). Batch size is a hyperparameter for tuning.</p>
+<p>Now let us create a <code class="docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code> object, which is a way to load data efficiently and is extremely beneficial if you cannot fit all data into computer memory at once (e.g., a bunch of videos). More information about DataLoader can be found in this <a class="reference external" href="https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/tutorial2/Introduction_to_PyTorch.html#The-data-loader-class">UvA deep learning tutorial</a> or this <a class="reference external" href="https://pytorch.org/tutorials/beginner/basics/data_tutorial.html#preparing-your-data-for-training-with-dataloaders">PyTorch documentation</a>. The DataLoader object also allows us to load data in batches by specifying the batch size. Notice that we only want to shuffle the training set here, not the validation set.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>When writing PyTorch code for training deep learning models, the first important thing is to get <code class="docutils literal notranslate"><span class="pre">torch.utils.data.Dataset</span></code> and <code class="docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code> objects ready.</p>
+</div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">dataloader_train</span><span class="p">,</span> <span class="n">dataloader_test</span><span class="p">,</span> <span class="n">num_epochs</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Train the model.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">run_one_epoch</span><span class="p">(</span><span class="n">dataloader</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">phase</span> <span class="o">==</span> <span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span> <span class="c1"># training mode</span>
-        <span class="k">else</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span> <span class="c1"># evaluation mode</span>
-        <span class="n">c</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># just a counter</span>
-        <span class="n">accu_loss</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># accumulated loss</span>
-        <span class="n">accu_score</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># accumulated scores</span>
-        <span class="c1"># Loop the data</span>
-        <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">dataloader</span><span class="p">:</span>
-            <span class="n">c</span> <span class="o">+=</span> <span class="mi">1</span> <span class="c1"># increase the counter</span>
-            <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-            <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">phase</span> <span class="o">==</span> <span class="s2">&quot;train&quot;</span><span class="p">:</span>
-                <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
-                <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
-                <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
-            <span class="c1"># Store statistics for the training set</span>
-            <span class="n">accu_loss</span> <span class="o">+=</span> <span class="n">loss</span> <span class="c1"># add up the loss</span>
-            <span class="n">y_label</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_pred</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
-            <span class="n">score</span> <span class="o">=</span> <span class="n">scorer</span><span class="p">(</span><span class="n">y_label</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">accu_score</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">accu_score</span> <span class="o">=</span> <span class="n">score</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">score</span><span class="p">:</span>
-                    <span class="n">accu_score</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+=</span> <span class="n">score</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-        <span class="c1"># Return statistics</span>
-        <span class="k">return</span> <span class="n">accu_loss</span><span class="o">/</span><span class="n">c</span><span class="p">,</span> <span class="n">accu_score</span>
-
-    <span class="k">def</span> <span class="nf">compute_statistics</span><span class="p">(</span><span class="n">score</span><span class="p">):</span>
-        <span class="n">tp_fp</span> <span class="o">=</span> <span class="n">score</span><span class="p">[</span><span class="s2">&quot;tp&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">score</span><span class="p">[</span><span class="s2">&quot;fp&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">tp_fp</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">precision</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">precision</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">score</span><span class="p">[</span><span class="s2">&quot;tp&quot;</span><span class="p">]</span><span class="o">/</span><span class="n">tp_fp</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="n">tp_fn</span> <span class="o">=</span> <span class="n">score</span><span class="p">[</span><span class="s2">&quot;tp&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">score</span><span class="p">[</span><span class="s2">&quot;fn&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">tp_fn</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">recall</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">recall</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">score</span><span class="p">[</span><span class="s2">&quot;tp&quot;</span><span class="p">]</span><span class="o">/</span><span class="n">tp_fn</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="n">tp_tp_fp_fn</span> <span class="o">=</span> <span class="n">tp_fp</span> <span class="o">+</span> <span class="n">tp_fn</span>
-        <span class="k">if</span> <span class="n">tp_tp_fp_fn</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">f1</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">f1</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">score</span><span class="p">[</span><span class="s2">&quot;tp&quot;</span><span class="p">]</span><span class="o">/</span><span class="n">tp_tp_fp_fn</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">precision</span><span class="p">,</span> <span class="n">recall</span><span class="p">,</span> <span class="n">f1</span>
-
-    <span class="c1"># Run one epoch</span>
-    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">):</span>
-        <span class="c1"># Run through the entire training set</span>
-        <span class="n">loss_train</span><span class="p">,</span> <span class="n">score_train</span> <span class="o">=</span> <span class="n">run_one_epoch</span><span class="p">(</span><span class="n">dataloader_train</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
-        <span class="n">loss_train</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">loss_train</span><span class="p">,</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">p_train</span><span class="p">,</span> <span class="n">r_train</span><span class="p">,</span> <span class="n">f1_train</span> <span class="o">=</span> <span class="n">compute_statistics</span><span class="p">(</span><span class="n">score_train</span><span class="p">)</span>
-        <span class="c1"># Run through the entire testing set</span>
-        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
-            <span class="n">loss_test</span><span class="p">,</span> <span class="n">score_test</span> <span class="o">=</span> <span class="n">run_one_epoch</span><span class="p">(</span><span class="n">dataloader_test</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
-        <span class="n">loss_test</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">loss_test</span><span class="p">,</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">p_test</span><span class="p">,</span> <span class="n">r_test</span><span class="p">,</span> <span class="n">f1_test</span> <span class="o">=</span> <span class="n">compute_statistics</span><span class="p">(</span><span class="n">score_test</span><span class="p">)</span>
-        <span class="c1"># Print loss and scores</span>
-        <span class="k">if</span> <span class="p">((</span><span class="n">epoch</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="k">30</span> == 0):
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-&quot;</span><span class="o">*</span><span class="mi">10</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Epoch [</span><span class="si">{</span><span class="n">epoch</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">num_epochs</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training loss: </span><span class="si">{</span><span class="n">loss_train</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, prevision: </span><span class="si">{</span><span class="n">p_train</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, recall: </span><span class="si">{</span><span class="n">r_train</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, f1: </span><span class="si">{</span><span class="n">f1_train</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training evaluation: </span><span class="si">{</span><span class="n">score_train</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Testing loss: </span><span class="si">{</span><span class="n">loss_test</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, prevision: </span><span class="si">{</span><span class="n">p_test</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, recall: </span><span class="si">{</span><span class="n">r_test</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, f1: </span><span class="si">{</span><span class="n">f1_test</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Testing evaluation: </span><span class="si">{</span><span class="n">score_test</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-    <span class="c1"># Return statistics</span>
-    <span class="k">return</span> <span class="n">p_test</span><span class="p">,</span> <span class="n">r_test</span><span class="p">,</span> <span class="n">f1_test</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataloader_train</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset_train</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">168</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">dataloader_validation</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset_validation</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">168</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
+<p>To allow the DataLoader to use the device that we specified at the beginning of this notebook, we need to use the following code.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define neural network model</span>
-<span class="k">class</span> <span class="nc">DeepLogisticRegression</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">DeviceDataLoader</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Wrap a dataloader to move data to a chosen device&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dl</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dl</span> <span class="o">=</span> <span class="n">dl</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
+        
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Yield a batch of data after moving it to device&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dl</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">to_device</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Number of batches&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dl</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now, we can move the DataLoader objects to the specified device.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataloader_train</span> <span class="o">=</span> <span class="n">DeviceDataLoader</span><span class="p">(</span><span class="n">dataloader_train</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+<span class="n">dataloader_validation</span> <span class="o">=</span> <span class="n">DeviceDataLoader</span><span class="p">(</span><span class="n">dataloader_validation</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, we need to define the deep regression model. We use two layers of linear neurons. The first layer maps the features to 64 hidden units (i.e., linear neurons), and the second layer maps 64 hidden units to one single output (i.e., whether there is a smell event or not).</p>
+<p>Notice that for computational efficiency, we do not need to ensure that the output is probability since the loss function that we will define later already does this job for us (i.e., the <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html">torch.nn.BCEWithLogitsLoss</a>). We only need to make sure that it is probability later when we are going to use the model to make predictions of events for our task.</p>
+<p>In the forward function, we define how the network will pass the result from each layer to the next layer. We use the ReLU activation function between the first and second layers to introduce some non-linearity. We do not need to define a backward function since PyTorch can automatically compute and backpropagate the gradients for us to iteratively update the model weights.</p>
+<p>In this case, we choose to use 64 hidden units for demonstration purposes. In reality, this is a hyperparameter that you can tune. The input size should match the number of features (otherwise, running the code will give an error).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">DeepRegression</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">output_size</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">DeepLogisticRegression</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DeepRegression</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">linear1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">input_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">relu</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">linear2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">output_size</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sigmoid</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sigmoid</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
         <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear2</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">out</span>
 </pre></div>
 </div>
 </div>
 </div>
-<div class="cell tag_output_scroll docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create time series splits for cross-validation.</span>
-<span class="n">splits</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="n">dataset_size</span> <span class="o">=</span> <span class="n">df_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">train_size</span> <span class="o">=</span> <span class="mi">8000</span>
-<span class="n">test_size</span> <span class="o">=</span> <span class="mi">168</span>
-<span class="n">input_size</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">train_size</span><span class="p">,</span> <span class="n">dataset_size</span><span class="p">,</span> <span class="n">test_size</span><span class="p">):</span>
-    <span class="n">start</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="n">train_size</span>
-    <span class="n">end</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="n">test_size</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">end</span> <span class="o">&gt;=</span> <span class="n">dataset_size</span><span class="p">):</span> <span class="k">break</span>
-    <span class="n">train_index</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
-    <span class="n">test_index</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
-    <span class="n">splits</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">list</span><span class="p">(</span><span class="n">train_index</span><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><span class="n">test_index</span><span class="p">)))</span>
-
-<span class="c1"># Cross-validate the model for every split</span>
-<span class="n">precision_list</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="n">recall_list</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="n">f1_list</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">splits</span><span class="p">)):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Split: </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">dataset_train</span> <span class="o">=</span> <span class="n">SmellPittsburghDataset</span><span class="p">(</span><span class="n">feature</span><span class="o">=</span><span class="n">feature</span><span class="p">[</span><span class="n">splits</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">[</span><span class="n">splits</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]])</span>
-    <span class="n">dataset_test</span> <span class="o">=</span> <span class="n">SmellPittsburghDataset</span><span class="p">(</span><span class="n">feature</span><span class="o">=</span><span class="n">feature</span><span class="p">[</span><span class="n">splits</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">[</span><span class="n">splits</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]])</span>
-    <span class="n">dataloader_train</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset_train</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">dataloader_test</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset_test</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">DeepLogisticRegression</span><span class="p">(</span><span class="n">input_size</span><span class="p">)</span>
-    <span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">BCELoss</span><span class="p">()</span>
-    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">p_test</span><span class="p">,</span> <span class="n">r_test</span><span class="p">,</span> <span class="n">f1_test</span> <span class="o">=</span> <span class="n">train</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">dataloader_train</span><span class="p">,</span> <span class="n">dataloader_test</span><span class="p">)</span>
-    <span class="n">precision_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p_test</span><span class="p">)</span>
-    <span class="n">recall_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r_test</span><span class="p">)</span>
-    <span class="n">f1_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f1_test</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">30</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Split: 0
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 0.98, recall: 0.97, f1: 0.97
-Training evaluation: {&#39;tn&#39;: 7363, &#39;fp&#39;: 11, &#39;fn&#39;: 21, &#39;tp&#39;: 605}
-Testing loss: 0.1800, prevision: 0.83, recall: 0.71, f1: 0.77
-Testing evaluation: {&#39;tn&#39;: 144, &#39;fp&#39;: 3, &#39;fn&#39;: 6, &#39;tp&#39;: 15}
-==============================
-Split: 1
-----------
-Epoch [30/30]
-Training loss: 0.0100, prevision: 1.00, recall: 0.99, f1: 0.99
-Training evaluation: {&#39;tn&#39;: 7385, &#39;fp&#39;: 2, &#39;fn&#39;: 7, &#39;tp&#39;: 606}
-Testing loss: 0.2900, prevision: 1.00, recall: 0.30, f1: 0.46
-Testing evaluation: {&#39;tn&#39;: 158, &#39;fp&#39;: 0, &#39;fn&#39;: 7, &#39;tp&#39;: 3}
-==============================
-Split: 2
-----------
-Epoch [30/30]
-Training loss: 0.0100, prevision: 0.99, recall: 0.97, f1: 0.98
-Training evaluation: {&#39;tn&#39;: 7400, &#39;fp&#39;: 7, &#39;fn&#39;: 15, &#39;tp&#39;: 578}
-Testing loss: 1.0500, prevision: 0.78, recall: 0.57, f1: 0.66
-Testing evaluation: {&#39;tn&#39;: 95, &#39;fp&#39;: 10, &#39;fn&#39;: 27, &#39;tp&#39;: 36}
-==============================
-Split: 3
-----------
-Epoch [30/30]
-Training loss: 0.0100, prevision: 1.00, recall: 0.99, f1: 0.99
-Training evaluation: {&#39;tn&#39;: 7391, &#39;fp&#39;: 1, &#39;fn&#39;: 8, &#39;tp&#39;: 600}
-Testing loss: 0.4800, prevision: 0.70, recall: 0.52, f1: 0.60
-Testing evaluation: {&#39;tn&#39;: 135, &#39;fp&#39;: 6, &#39;fn&#39;: 13, &#39;tp&#39;: 14}
-==============================
-Split: 4
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 1.00, recall: 0.98, f1: 0.99
-Training evaluation: {&#39;tn&#39;: 7382, &#39;fp&#39;: 3, &#39;fn&#39;: 12, &#39;tp&#39;: 603}
-Testing loss: 0.0600, prevision: 0.00, recall: 0.00, f1: 0.00
-Testing evaluation: {&#39;tn&#39;: 165, &#39;fp&#39;: 3, &#39;fn&#39;: 0, &#39;tp&#39;: 0}
-==============================
-Split: 5
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 1.00, recall: 0.97, f1: 0.98
-Training evaluation: {&#39;tn&#39;: 7391, &#39;fp&#39;: 2, &#39;fn&#39;: 19, &#39;tp&#39;: 588}
-Testing loss: 0.2700, prevision: 0.00, recall: 0.00, f1: 0.00
-Testing evaluation: {&#39;tn&#39;: 165, &#39;fp&#39;: 0, &#39;fn&#39;: 3, &#39;tp&#39;: 0}
-==============================
-Split: 6
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 1.00, recall: 0.98, f1: 0.99
-Training evaluation: {&#39;tn&#39;: 7388, &#39;fp&#39;: 2, &#39;fn&#39;: 13, &#39;tp&#39;: 597}
-Testing loss: 0.0300, prevision: 0.00, recall: 0.00, f1: 0.00
-Testing evaluation: {&#39;tn&#39;: 166, &#39;fp&#39;: 2, &#39;fn&#39;: 0, &#39;tp&#39;: 0}
-==============================
-Split: 7
-----------
-Epoch [30/30]
-Training loss: 0.0100, prevision: 1.00, recall: 0.98, f1: 0.99
-Training evaluation: {&#39;tn&#39;: 7399, &#39;fp&#39;: 2, &#39;fn&#39;: 11, &#39;tp&#39;: 588}
-Testing loss: 0.6800, prevision: 0.00, recall: 0.00, f1: 0.00
-Testing evaluation: {&#39;tn&#39;: 142, &#39;fp&#39;: 17, &#39;fn&#39;: 9, &#39;tp&#39;: 0}
-==============================
-Split: 8
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 1.00, recall: 0.98, f1: 0.99
-Training evaluation: {&#39;tn&#39;: 7402, &#39;fp&#39;: 0, &#39;fn&#39;: 13, &#39;tp&#39;: 585}
-Testing loss: 0.4400, prevision: 0.93, recall: 0.48, f1: 0.64
-Testing evaluation: {&#39;tn&#39;: 138, &#39;fp&#39;: 1, &#39;fn&#39;: 15, &#39;tp&#39;: 14}
-==============================
-Split: 9
-----------
-Epoch [30/30]
-Training loss: 0.0100, prevision: 1.00, recall: 0.99, f1: 0.99
-Training evaluation: {&#39;tn&#39;: 7373, &#39;fp&#39;: 0, &#39;fn&#39;: 8, &#39;tp&#39;: 619}
-Testing loss: 1.5300, prevision: 0.83, recall: 0.16, f1: 0.27
-Testing evaluation: {&#39;tn&#39;: 136, &#39;fp&#39;: 1, &#39;fn&#39;: 26, &#39;tp&#39;: 5}
-==============================
-Split: 10
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 0.99, recall: 0.98, f1: 0.99
-Training evaluation: {&#39;tn&#39;: 7338, &#39;fp&#39;: 4, &#39;fn&#39;: 14, &#39;tp&#39;: 644}
-Testing loss: 0.5000, prevision: 0.00, recall: 0.00, f1: 0.00
-Testing evaluation: {&#39;tn&#39;: 159, &#39;fp&#39;: 1, &#39;fn&#39;: 8, &#39;tp&#39;: 0}
-==============================
-Split: 11
-----------
-Epoch [30/30]
-Training loss: 0.0100, prevision: 1.00, recall: 0.99, f1: 1.00
-Training evaluation: {&#39;tn&#39;: 7333, &#39;fp&#39;: 1, &#39;fn&#39;: 4, &#39;tp&#39;: 662}
-Testing loss: 0.1800, prevision: 0.53, recall: 0.82, f1: 0.64
-Testing evaluation: {&#39;tn&#39;: 149, &#39;fp&#39;: 8, &#39;fn&#39;: 2, &#39;tp&#39;: 9}
-==============================
-Split: 12
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 0.99, recall: 0.97, f1: 0.98
-Training evaluation: {&#39;tn&#39;: 7335, &#39;fp&#39;: 7, &#39;fn&#39;: 22, &#39;tp&#39;: 636}
-Testing loss: 0.0100, prevision: 0.00, recall: 0.00, f1: 0.00
-Testing evaluation: {&#39;tn&#39;: 168, &#39;fp&#39;: 0, &#39;fn&#39;: 0, &#39;tp&#39;: 0}
-==============================
-Split: 13
-----------
-Epoch [30/30]
-Training loss: 0.0100, prevision: 1.00, recall: 0.98, f1: 0.99
-Training evaluation: {&#39;tn&#39;: 7341, &#39;fp&#39;: 1, &#39;fn&#39;: 11, &#39;tp&#39;: 647}
-Testing loss: 0.1400, prevision: 0.83, recall: 0.62, f1: 0.71
-Testing evaluation: {&#39;tn&#39;: 159, &#39;fp&#39;: 1, &#39;fn&#39;: 3, &#39;tp&#39;: 5}
-==============================
-Split: 14
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 0.99, recall: 0.98, f1: 0.98
-Training evaluation: {&#39;tn&#39;: 7332, &#39;fp&#39;: 6, &#39;fn&#39;: 14, &#39;tp&#39;: 648}
-Testing loss: 0.8200, prevision: 0.64, recall: 0.32, f1: 0.42
-Testing evaluation: {&#39;tn&#39;: 142, &#39;fp&#39;: 4, &#39;fn&#39;: 15, &#39;tp&#39;: 7}
-==============================
-Split: 15
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 1.00, recall: 0.97, f1: 0.99
-Training evaluation: {&#39;tn&#39;: 7329, &#39;fp&#39;: 0, &#39;fn&#39;: 19, &#39;tp&#39;: 652}
-Testing loss: 0.3200, prevision: 0.00, recall: 0.00, f1: 0.00
-Testing evaluation: {&#39;tn&#39;: 160, &#39;fp&#39;: 1, &#39;fn&#39;: 7, &#39;tp&#39;: 0}
-==============================
-Split: 16
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 0.97, recall: 0.95, f1: 0.96
-Training evaluation: {&#39;tn&#39;: 7339, &#39;fp&#39;: 18, &#39;fn&#39;: 34, &#39;tp&#39;: 609}
-Testing loss: 0.6100, prevision: 0.57, recall: 0.42, f1: 0.48
-Testing evaluation: {&#39;tn&#39;: 127, &#39;fp&#39;: 10, &#39;fn&#39;: 18, &#39;tp&#39;: 13}
-==============================
-Split: 17
-----------
-Epoch [30/30]
-Training loss: 0.0100, prevision: 1.00, recall: 0.98, f1: 0.99
-Training evaluation: {&#39;tn&#39;: 7347, &#39;fp&#39;: 1, &#39;fn&#39;: 16, &#39;tp&#39;: 636}
-Testing loss: 0.4400, prevision: 0.20, recall: 0.12, f1: 0.15
-Testing evaluation: {&#39;tn&#39;: 156, &#39;fp&#39;: 4, &#39;fn&#39;: 7, &#39;tp&#39;: 1}
-==============================
-Split: 18
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 0.98, recall: 0.96, f1: 0.97
-Training evaluation: {&#39;tn&#39;: 7347, &#39;fp&#39;: 10, &#39;fn&#39;: 26, &#39;tp&#39;: 617}
-Testing loss: 0.4500, prevision: 0.11, recall: 0.06, f1: 0.08
-Testing evaluation: {&#39;tn&#39;: 144, &#39;fp&#39;: 8, &#39;fn&#39;: 15, &#39;tp&#39;: 1}
-==============================
-Split: 19
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 1.00, recall: 0.96, f1: 0.98
-Training evaluation: {&#39;tn&#39;: 7338, &#39;fp&#39;: 3, &#39;fn&#39;: 29, &#39;tp&#39;: 630}
-Testing loss: 0.1100, prevision: 0.58, recall: 0.78, f1: 0.67
-Testing evaluation: {&#39;tn&#39;: 154, &#39;fp&#39;: 5, &#39;fn&#39;: 2, &#39;tp&#39;: 7}
-==============================
-Split: 20
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 1.00, recall: 0.98, f1: 0.99
-Training evaluation: {&#39;tn&#39;: 7342, &#39;fp&#39;: 0, &#39;fn&#39;: 12, &#39;tp&#39;: 646}
-Testing loss: 0.6500, prevision: 0.14, recall: 0.04, f1: 0.06
-Testing evaluation: {&#39;tn&#39;: 138, &#39;fp&#39;: 6, &#39;fn&#39;: 23, &#39;tp&#39;: 1}
-==============================
-Split: 21
-----------
-Epoch [30/30]
-Training loss: 0.0300, prevision: 0.98, recall: 0.94, f1: 0.96
-Training evaluation: {&#39;tn&#39;: 7307, &#39;fp&#39;: 11, &#39;fn&#39;: 44, &#39;tp&#39;: 638}
-Testing loss: 1.2400, prevision: 1.00, recall: 0.37, f1: 0.54
-Testing evaluation: {&#39;tn&#39;: 130, &#39;fp&#39;: 0, &#39;fn&#39;: 24, &#39;tp&#39;: 14}
-==============================
-Split: 22
-----------
-Epoch [30/30]
-Training loss: 0.0300, prevision: 0.98, recall: 0.95, f1: 0.97
-Training evaluation: {&#39;tn&#39;: 7266, &#39;fp&#39;: 14, &#39;fn&#39;: 35, &#39;tp&#39;: 685}
-Testing loss: 0.0100, prevision: 0.00, recall: 0.00, f1: 0.00
-Testing evaluation: {&#39;tn&#39;: 167, &#39;fp&#39;: 1, &#39;fn&#39;: 0, &#39;tp&#39;: 0}
-==============================
-Split: 23
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 0.99, recall: 0.96, f1: 0.97
-Training evaluation: {&#39;tn&#39;: 7283, &#39;fp&#39;: 8, &#39;fn&#39;: 29, &#39;tp&#39;: 680}
-Testing loss: 0.1300, prevision: 0.00, recall: 0.00, f1: 0.00
-Testing evaluation: {&#39;tn&#39;: 166, &#39;fp&#39;: 0, &#39;fn&#39;: 2, &#39;tp&#39;: 0}
-==============================
-Split: 24
-----------
-Epoch [30/30]
-Training loss: 0.0300, prevision: 0.98, recall: 0.93, f1: 0.95
-Training evaluation: {&#39;tn&#39;: 7298, &#39;fp&#39;: 13, &#39;fn&#39;: 48, &#39;tp&#39;: 641}
-Testing loss: 0.2200, prevision: 0.20, recall: 0.20, f1: 0.20
-Testing evaluation: {&#39;tn&#39;: 150, &#39;fp&#39;: 8, &#39;fn&#39;: 8, &#39;tp&#39;: 2}
-==============================
-Split: 25
-----------
-Epoch [30/30]
-Training loss: 0.0300, prevision: 0.98, recall: 0.96, f1: 0.97
-Training evaluation: {&#39;tn&#39;: 7289, &#39;fp&#39;: 12, &#39;fn&#39;: 31, &#39;tp&#39;: 668}
-Testing loss: 0.1500, prevision: 0.50, recall: 0.12, f1: 0.20
-Testing evaluation: {&#39;tn&#39;: 159, &#39;fp&#39;: 1, &#39;fn&#39;: 7, &#39;tp&#39;: 1}
-==============================
-Split: 26
-----------
-Epoch [30/30]
-Training loss: 0.0300, prevision: 0.98, recall: 0.95, f1: 0.96
-Training evaluation: {&#39;tn&#39;: 7292, &#39;fp&#39;: 16, &#39;fn&#39;: 36, &#39;tp&#39;: 656}
-Testing loss: 0.1300, prevision: 0.90, recall: 0.60, f1: 0.72
-Testing evaluation: {&#39;tn&#39;: 152, &#39;fp&#39;: 1, &#39;fn&#39;: 6, &#39;tp&#39;: 9}
-==============================
-Split: 27
-----------
-Epoch [30/30]
-Training loss: 0.0300, prevision: 0.98, recall: 0.93, f1: 0.95
-Training evaluation: {&#39;tn&#39;: 7280, &#39;fp&#39;: 13, &#39;fn&#39;: 52, &#39;tp&#39;: 655}
-Testing loss: 0.6600, prevision: 0.86, recall: 0.26, f1: 0.40
-Testing evaluation: {&#39;tn&#39;: 144, &#39;fp&#39;: 1, &#39;fn&#39;: 17, &#39;tp&#39;: 6}
-==============================
-Split: 28
-----------
-Epoch [30/30]
-Training loss: 0.0300, prevision: 0.98, recall: 0.95, f1: 0.96
-Training evaluation: {&#39;tn&#39;: 7264, &#39;fp&#39;: 13, &#39;fn&#39;: 37, &#39;tp&#39;: 686}
-Testing loss: 0.0100, prevision: 1.00, recall: 1.00, f1: 1.00
-Testing evaluation: {&#39;tn&#39;: 162, &#39;fp&#39;: 0, &#39;fn&#39;: 0, &#39;tp&#39;: 6}
-==============================
-Split: 29
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 1.00, recall: 0.98, f1: 0.99
-Training evaluation: {&#39;tn&#39;: 7289, &#39;fp&#39;: 0, &#39;fn&#39;: 15, &#39;tp&#39;: 696}
-Testing loss: 0.3000, prevision: 0.38, recall: 0.27, f1: 0.32
-Testing evaluation: {&#39;tn&#39;: 152, &#39;fp&#39;: 5, &#39;fn&#39;: 8, &#39;tp&#39;: 3}
-==============================
-Split: 30
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 0.99, recall: 0.97, f1: 0.98
-Training evaluation: {&#39;tn&#39;: 7271, &#39;fp&#39;: 7, &#39;fn&#39;: 25, &#39;tp&#39;: 697}
-Testing loss: 1.0500, prevision: 0.95, recall: 0.39, f1: 0.55
-Testing evaluation: {&#39;tn&#39;: 121, &#39;fp&#39;: 1, &#39;fn&#39;: 28, &#39;tp&#39;: 18}
-==============================
-Split: 31
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 0.99, recall: 0.97, f1: 0.98
-Training evaluation: {&#39;tn&#39;: 7228, &#39;fp&#39;: 10, &#39;fn&#39;: 21, &#39;tp&#39;: 741}
-Testing loss: 1.1600, prevision: 0.88, recall: 0.25, f1: 0.39
-Testing evaluation: {&#39;tn&#39;: 139, &#39;fp&#39;: 1, &#39;fn&#39;: 21, &#39;tp&#39;: 7}
-==============================
-Split: 32
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 0.99, recall: 0.97, f1: 0.98
-Training evaluation: {&#39;tn&#39;: 7212, &#39;fp&#39;: 6, &#39;fn&#39;: 27, &#39;tp&#39;: 755}
-Testing loss: 0.6200, prevision: 0.00, recall: 0.00, f1: 0.00
-Testing evaluation: {&#39;tn&#39;: 162, &#39;fp&#39;: 1, &#39;fn&#39;: 5, &#39;tp&#39;: 0}
-==============================
-Split: 33
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 0.99, recall: 0.98, f1: 0.98
-Training evaluation: {&#39;tn&#39;: 7227, &#39;fp&#39;: 8, &#39;fn&#39;: 18, &#39;tp&#39;: 747}
-Testing loss: 0.2100, prevision: 0.47, recall: 0.78, f1: 0.58
-Testing evaluation: {&#39;tn&#39;: 151, &#39;fp&#39;: 8, &#39;fn&#39;: 2, &#39;tp&#39;: 7}
-==============================
-Split: 34
-----------
-Epoch [30/30]
-Training loss: 0.0400, prevision: 0.97, recall: 0.93, f1: 0.95
-Training evaluation: {&#39;tn&#39;: 7202, &#39;fp&#39;: 24, &#39;fn&#39;: 53, &#39;tp&#39;: 721}
-Testing loss: 0.8100, prevision: 0.25, recall: 0.29, f1: 0.27
-Testing evaluation: {&#39;tn&#39;: 136, &#39;fp&#39;: 15, &#39;fn&#39;: 12, &#39;tp&#39;: 5}
-==============================
-Split: 35
-----------
-Epoch [30/30]
-Training loss: 0.0300, prevision: 0.99, recall: 0.97, f1: 0.98
-Training evaluation: {&#39;tn&#39;: 7211, &#39;fp&#39;: 10, &#39;fn&#39;: 25, &#39;tp&#39;: 754}
-Testing loss: 0.2900, prevision: 0.54, recall: 0.65, f1: 0.59
-Testing evaluation: {&#39;tn&#39;: 137, &#39;fp&#39;: 11, &#39;fn&#39;: 7, &#39;tp&#39;: 13}
-==============================
-Split: 36
-----------
-Epoch [30/30]
-Training loss: 0.0100, prevision: 1.00, recall: 0.99, f1: 1.00
-Training evaluation: {&#39;tn&#39;: 7234, &#39;fp&#39;: 1, &#39;fn&#39;: 6, &#39;tp&#39;: 759}
-Testing loss: 0.5700, prevision: 0.67, recall: 0.20, f1: 0.31
-Testing evaluation: {&#39;tn&#39;: 157, &#39;fp&#39;: 1, &#39;fn&#39;: 8, &#39;tp&#39;: 2}
-==============================
-Split: 37
-----------
-Epoch [30/30]
-Training loss: 0.0300, prevision: 0.99, recall: 0.93, f1: 0.96
-Training evaluation: {&#39;tn&#39;: 7225, &#39;fp&#39;: 10, &#39;fn&#39;: 54, &#39;tp&#39;: 711}
-Testing loss: 0.3100, prevision: 0.42, recall: 0.50, f1: 0.46
-Testing evaluation: {&#39;tn&#39;: 141, &#39;fp&#39;: 11, &#39;fn&#39;: 8, &#39;tp&#39;: 8}
-==============================
-Split: 38
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 0.99, recall: 0.98, f1: 0.98
-Training evaluation: {&#39;tn&#39;: 7224, &#39;fp&#39;: 10, &#39;fn&#39;: 18, &#39;tp&#39;: 748}
-Testing loss: 0.0700, prevision: 0.90, recall: 0.75, f1: 0.82
-Testing evaluation: {&#39;tn&#39;: 155, &#39;fp&#39;: 1, &#39;fn&#39;: 3, &#39;tp&#39;: 9}
-==============================
-Split: 39
-----------
-Epoch [30/30]
-Training loss: 0.0300, prevision: 0.98, recall: 0.96, f1: 0.97
-Training evaluation: {&#39;tn&#39;: 7217, &#39;fp&#39;: 16, &#39;fn&#39;: 28, &#39;tp&#39;: 739}
-Testing loss: 0.3900, prevision: 0.26, recall: 0.75, f1: 0.39
-Testing evaluation: {&#39;tn&#39;: 143, &#39;fp&#39;: 17, &#39;fn&#39;: 2, &#39;tp&#39;: 6}
-==============================
-Split: 40
-----------
-Epoch [30/30]
-Training loss: 0.0300, prevision: 0.98, recall: 0.97, f1: 0.98
-Training evaluation: {&#39;tn&#39;: 7235, &#39;fp&#39;: 12, &#39;fn&#39;: 24, &#39;tp&#39;: 729}
-Testing loss: 0.8100, prevision: 0.91, recall: 0.31, f1: 0.47
-Testing evaluation: {&#39;tn&#39;: 135, &#39;fp&#39;: 1, &#39;fn&#39;: 22, &#39;tp&#39;: 10}
-==============================
-Split: 41
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 0.99, recall: 0.98, f1: 0.99
-Training evaluation: {&#39;tn&#39;: 7238, &#39;fp&#39;: 9, &#39;fn&#39;: 13, &#39;tp&#39;: 740}
-Testing loss: 0.9700, prevision: 0.00, recall: 0.00, f1: 0.00
-Testing evaluation: {&#39;tn&#39;: 132, &#39;fp&#39;: 32, &#39;fn&#39;: 4, &#39;tp&#39;: 0}
-==============================
-Split: 42
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 0.99, recall: 0.98, f1: 0.99
-Training evaluation: {&#39;tn&#39;: 7270, &#39;fp&#39;: 4, &#39;fn&#39;: 15, &#39;tp&#39;: 711}
-Testing loss: 0.6800, prevision: 0.00, recall: 0.00, f1: 0.00
-Testing evaluation: {&#39;tn&#39;: 148, &#39;fp&#39;: 6, &#39;fn&#39;: 14, &#39;tp&#39;: 0}
-==============================
-Split: 43
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 0.99, recall: 0.97, f1: 0.98
-Training evaluation: {&#39;tn&#39;: 7266, &#39;fp&#39;: 6, &#39;fn&#39;: 19, &#39;tp&#39;: 709}
-Testing loss: 1.3900, prevision: 0.67, recall: 0.19, f1: 0.30
-Testing evaluation: {&#39;tn&#39;: 122, &#39;fp&#39;: 4, &#39;fn&#39;: 34, &#39;tp&#39;: 8}
-==============================
-Split: 44
-----------
-Epoch [30/30]
-Training loss: 0.0300, prevision: 0.98, recall: 0.94, f1: 0.96
-Training evaluation: {&#39;tn&#39;: 7231, &#39;fp&#39;: 14, &#39;fn&#39;: 49, &#39;tp&#39;: 706}
-Testing loss: 0.9600, prevision: 0.08, recall: 0.04, f1: 0.05
-Testing evaluation: {&#39;tn&#39;: 132, &#39;fp&#39;: 11, &#39;fn&#39;: 24, &#39;tp&#39;: 1}
-==============================
-Split: 45
-----------
-Epoch [30/30]
-Training loss: 0.0300, prevision: 0.99, recall: 0.96, f1: 0.97
-Training evaluation: {&#39;tn&#39;: 7216, &#39;fp&#39;: 11, &#39;fn&#39;: 28, &#39;tp&#39;: 745}
-Testing loss: 0.5800, prevision: 0.30, recall: 0.60, f1: 0.40
-Testing evaluation: {&#39;tn&#39;: 132, &#39;fp&#39;: 21, &#39;fn&#39;: 6, &#39;tp&#39;: 9}
-==============================
-Split: 46
-----------
-Epoch [30/30]
-Training loss: 0.0300, prevision: 0.96, recall: 0.94, f1: 0.95
-Training evaluation: {&#39;tn&#39;: 7199, &#39;fp&#39;: 27, &#39;fn&#39;: 45, &#39;tp&#39;: 729}
-Testing loss: 0.1700, prevision: 0.89, recall: 0.57, f1: 0.70
-Testing evaluation: {&#39;tn&#39;: 153, &#39;fp&#39;: 1, &#39;fn&#39;: 6, &#39;tp&#39;: 8}
-==============================
-Split: 47
-----------
-Epoch [30/30]
-Training loss: 0.0300, prevision: 0.98, recall: 0.96, f1: 0.97
-Training evaluation: {&#39;tn&#39;: 7207, &#39;fp&#39;: 15, &#39;fn&#39;: 32, &#39;tp&#39;: 746}
-Testing loss: 0.1200, prevision: 0.00, recall: 0.00, f1: 0.00
-Testing evaluation: {&#39;tn&#39;: 161, &#39;fp&#39;: 5, &#39;fn&#39;: 2, &#39;tp&#39;: 0}
-==============================
-Split: 48
-----------
-Epoch [30/30]
-Training loss: 0.0200, prevision: 0.99, recall: 0.96, f1: 0.98
-Training evaluation: {&#39;tn&#39;: 7223, &#39;fp&#39;: 8, &#39;fn&#39;: 27, &#39;tp&#39;: 742}
-Testing loss: 0.2100, prevision: 0.82, recall: 0.89, f1: 0.85
-Testing evaluation: {&#39;tn&#39;: 126, &#39;fp&#39;: 7, &#39;fn&#39;: 4, &#39;tp&#39;: 31}
-==============================
-Split: 49
-----------
-Epoch [30/30]
-Training loss: 0.0300, prevision: 0.99, recall: 0.95, f1: 0.97
-Training evaluation: {&#39;tn&#39;: 7222, &#39;fp&#39;: 4, &#39;fn&#39;: 40, &#39;tp&#39;: 734}
-Testing loss: 0.0200, prevision: 0.00, recall: 0.00, f1: 0.00
-Testing evaluation: {&#39;tn&#39;: 167, &#39;fp&#39;: 1, &#39;fn&#39;: 0, &#39;tp&#39;: 0}
-==============================
-Split: 50
-----------
-Epoch [30/30]
-Training loss: 0.0300, prevision: 0.98, recall: 0.95, f1: 0.97
-Training evaluation: {&#39;tn&#39;: 7231, &#39;fp&#39;: 15, &#39;fn&#39;: 34, &#39;tp&#39;: 720}
-Testing loss: 0.2400, prevision: 0.40, recall: 0.89, f1: 0.55
-Testing evaluation: {&#39;tn&#39;: 147, &#39;fp&#39;: 12, &#39;fn&#39;: 1, &#39;tp&#39;: 8}
-==============================
-Split: 51
-----------
-Epoch [30/30]
-Training loss: 0.0300, prevision: 0.99, recall: 0.93, f1: 0.96
-Training evaluation: {&#39;tn&#39;: 7292, &#39;fp&#39;: 7, &#39;fn&#39;: 47, &#39;tp&#39;: 654}
-Testing loss: 0.0600, prevision: 0.00, recall: 0.00, f1: 0.00
-Testing evaluation: {&#39;tn&#39;: 162, &#39;fp&#39;: 6, &#39;fn&#39;: 0, &#39;tp&#39;: 0}
-==============================
-</pre></div>
-</div>
-</div>
-</div>
+<p>We are getting close to being able to train the model. The last three things that we need are to create the model object, specify the loss function (for the optimization algorithm to compute the error so that PyTorch can compute and backpropagate the gradients to update the model weights), and define the optimizer (i.e., the optimization algorithm).</p>
+<p>Regarding the model, the code above defines a class. To be able to use it, we need to use the class to create an object. Think about a class as a design specification (e.g., spec for a car) and an object as producing the real design artifact (e.g., a real car). Regarding the loss criterion, we use the <a class="reference external" href="https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/tutorial2/Introduction_to_PyTorch.html#Loss-modules">Binary Cross Entropy (BCE) loss function</a>, which is standard for binary classification. Notice that we are not using <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.BCELoss.html">torch.nn.BCELoss</a> for computational efficiency. The <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html">torch.nn.BCEWithLogitsLoss</a> that we use instead here can take care of the job of transforming the output of the final neural network layer into probabilities.</p>
+<p>Regarding the optimizer, we use the <a class="reference external" href="https://arxiv.org/pdf/1412.6980.pdf">Adam optimization algorithm</a>, which is a variation of Stochastic Gradient Descent with advanced capabilities in scheduling learning rates and scaling the gradients dynamically. Here, we use <code class="docutils literal notranslate"><span class="pre">0.0005</span></code> as the learning rate and <code class="docutils literal notranslate"><span class="pre">0.0001</span></code> as the weight decay for regularization. Adding the regularization can make the training more stable and prevent overfitting. In reality, they are hyperparameters for tuning.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Print the overall performance</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;average precision:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">precision_list</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;average recall:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">recall_list</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;average f1-score:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">f1_list</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">DeepRegression</span><span class="p">(</span><span class="n">feature</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">to_device</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span> <span class="c1"># move the model to the specified device</span>
+<span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">BCEWithLogitsLoss</span><span class="p">()</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.0005</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Finally, we can use the following function to train the model for multiple epochs and return the model performance metrics. We will use the <a class="reference external" href="https://tqdm.github.io/"><code class="docutils literal notranslate"><span class="pre">tqdm</span></code> package</a> for help in tracking the progress in the for-loop, which is handy for deep learning code that can take a long time to run.</p>
+<p>As mentioned before, the output of the model is not probability for computational efficiency. But when computing the model performance, we need the probability to determine how likely there will be smell events. We will use the Sigmoid function to convert the output from the final layer to probabilities that sum up to one. Then, we can check if the probability is larger than a threshold (e.g., 0.5).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_model</span><span class="p">(</span><span class="n">dataloader</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">num_epochs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Train a PyTorch model and print model performance metrics.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataloader : torch.utils.data.DataLoader</span>
+<span class="sd">        The dataloader object.</span>
+<span class="sd">    model : torch.nn.Module</span>
+<span class="sd">        The PyTorch model that we want to train.</span>
+<span class="sd">    criterion : torch.nn.modules.loss._Loss</span>
+<span class="sd">        The loss function.</span>
+<span class="sd">    optimizer : torch.optim.Optimizer</span>
+<span class="sd">        The optimization algorithm.</span>
+<span class="sd">    num_epochs : int</span>
+<span class="sd">        Number of epochs for training the model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span> <span class="c1"># set the model to training mode</span>
+    <span class="c1"># Loop epochs</span>
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">)):</span>
+        <span class="n">score_arrays</span> <span class="o">=</span> <span class="n">binary_scorer</span><span class="p">()</span> <span class="c1"># get the empty structure</span>
+        <span class="n">score_arrays</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># add the field for appending the loss</span>
+        <span class="c1"># Loop the dataloader</span>
+        <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">dataloader</span><span class="p">:</span>
+            <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="c1"># make predictions using the model</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="c1"># compute the loss</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span> <span class="c1"># set initial gradients to zero</span>
+            <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span> <span class="c1"># accumulate and backpropagate the gradients</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span> <span class="c1"># update model weights</span>
+            <span class="n">score_arrays</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span> <span class="c1"># append the loss</span>
+            <span class="n">y_label</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span> <span class="c1"># turn model output into probabilities</span>
+            <span class="n">y_label</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_pred</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span> <span class="c1"># turn probabilities to labels with 0 or 1</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">binary_scorer</span><span class="p">(</span><span class="n">y_label</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="c1"># compute evaluation metrics</span>
+            <span class="c1"># Append the evaluation metrics to the arrays</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">score</span><span class="p">:</span>
+                <span class="n">score_arrays</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+        <span class="c1"># After every 10 epochs, print the averaged evaluation metrics</span>
+        <span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">40</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Epoch </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">epoch</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">score_arrays</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;averaged training </span><span class="si">%s</span><span class="s2">: </span><span class="si">%4f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">score_arrays</span><span class="p">[</span><span class="n">k</span><span class="p">])))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, we need a function to evaluate the model on the valiation or test set.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">evaluate_model</span><span class="p">(</span><span class="n">dataloader</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluate a PyTorch model and print model performance metrics.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataloader : torch.utils.data.DataLoader</span>
+<span class="sd">        The dataloader object.</span>
+<span class="sd">    model : torch.nn.Module</span>
+<span class="sd">        The PyTorch model that we want to train.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span> <span class="c1"># set the model to evaluation mode</span>
+    <span class="c1"># Since we do not want to train the model, make sure that we deactivate the gradients</span>
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="n">score_arrays</span> <span class="o">=</span> <span class="n">binary_scorer</span><span class="p">()</span> <span class="c1"># get the empty structure</span>
+        <span class="c1"># Loop the dataloader</span>
+        <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">dataloader</span><span class="p">:</span>
+            <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="c1"># make predictions using the model</span>
+            <span class="n">y_label</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span> <span class="c1"># turn model output into probabilities</span>
+            <span class="n">y_label</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_pred</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span> <span class="c1"># turn probabilities to labels with 0 or 1</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">binary_scorer</span><span class="p">(</span><span class="n">y_label</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="c1"># compute evaluation metrics</span>
+            <span class="c1"># Append the evaluation metrics to the arrays</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">score</span><span class="p">:</span>
+                <span class="n">score_arrays</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+    <span class="c1"># Print the averaged evaluation metrics</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">40</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">40</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Validate model performance:&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">score_arrays</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;averaged validation </span><span class="si">%s</span><span class="s2">: </span><span class="si">%4f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">score_arrays</span><span class="p">[</span><span class="n">k</span><span class="p">])))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Finally, we can now run the functions to train the model for 30 epochs and evaluate the model on the validation set. In practice, you can run the model for many epochs, save the model for every X epochs (e.g., X=5), and pick the model with the highest performance on the validation set.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">train_model</span><span class="p">(</span><span class="n">dataloader_train</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+<span class="n">evaluate_model</span><span class="p">(</span><span class="n">dataloader_train</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>average precision: 0.44
-average recall: 0.32
-average f1-score: 0.34
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  7%|██▏                             | 2/30 [00:00&lt;00:06,  4.05it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>========================================
+Epoch 0
+averaged training precision: 0.347569
+averaged training recall: 0.050568
+averaged training fscore: 0.085399
+averaged training loss: 0.410165
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 37%|███████████▎                   | 11/30 [00:02&lt;00:03,  4.80it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>========================================
+Epoch 10
+averaged training precision: 0.853211
+averaged training recall: 0.377262
+averaged training fscore: 0.508721
+averaged training loss: 0.137110
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 70%|█████████████████████▋         | 21/30 [00:04&lt;00:01,  4.84it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>========================================
+Epoch 20
+averaged training precision: 0.892700
+averaged training recall: 0.480476
+averaged training fscore: 0.614713
+averaged training loss: 0.109115
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|███████████████████████████████| 30/30 [00:06&lt;00:00,  4.76it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>========================================
+========================================
+Validate model performance:
+averaged validation precision: 0.953974
+averaged validation recall: 0.553031
+averaged validation fscore: 0.687117
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="your-task">
+<h2>Your Task<a class="headerlink" href="#your-task" title="Permalink to this headline">#</a></h2>
+<p>We have used the deep regression model to perform smell event classification on the Smell Pittsburgh dataset. Now, your task is to implement cross-validation (similar to the one that is used in the structured data processing tutorial) and perform hyperparameter tuning. Write your code below and print the averaged precision, recall, and F1 score after performing cross-validation and hyperparameter tuning. There are four hyperparameters that you can tune: the hidden unit size of the model, learning rate, weight decay, and batch size.</p>
+<p>Notice that you also need to allocate a test set to have a more objective estimation of model performance. The test set cannot be seen by the model during hyperparameter tuning. Report also the precision, recall, and F1 score for the test set.</p>
+<p>Optionally, you can also change the model architecture, such as adding more layers or changing the activation function. Have fun playing with deep learning models!</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Write your code here</span>
 </pre></div>
 </div>
 </div>
@@ -1694,6 +1463,7 @@ average f1-score: 0.34
 <dd><p>Credit: this teaching material is created by <a class="reference external" href="https://github.com/yenchiah">Yen-Chia Hsu</a>.</p>
 </dd>
 </dl>
+</section>
 </section>
 
     <script type="text/x-thebe-config">
