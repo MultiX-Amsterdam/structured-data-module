@@ -44,6 +44,10 @@
 
 # ## Import Packages
 
+# :::{important}
+# You need to install the packages [in this link](https://github.com/MultiX-Amsterdam/structured-data-module/blob/main/install_packages.sh) in your Python development environment.
+# :::
+# 
 # We put all the packages that are needed for this tutorial below:
 
 # In[1]:
