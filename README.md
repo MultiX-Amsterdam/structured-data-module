@@ -8,7 +8,7 @@ This repository hosts the teaching materials for processing structured data in t
 
 All the content in this repository is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
-Credit: this teaching material is created by [Yen-Chia Hsu](https://github.com/yenchiah).
+Credit: this teaching material is created by [Yen-Chia Hsu](https://github.com/yenchiah) and revised by [Alejandro Monroy](https://github.com/amonroym99).
 
 ## <a name="coding-standards"></a>Coding standards
 When contributing code to this repository, please follow the guidelines below:
