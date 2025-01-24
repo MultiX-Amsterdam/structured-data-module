@@ -1,8 +1,8 @@
 # Structured Data Processing
 
-(Last updated: Jan 26, 2024)[^credit]
+(Last updated: Jan 24, 2025)[^credit]
 
-[^credit]: Credit: this teaching material is created by [Yen-Chia Hsu](https://github.com/yenchiah).
+[^credit]: Credit: this teaching material is created by [Yen-Chia Hsu](https://github.com/yenchiah) and revised by [Alejandro Monroy](https://github.com/amonroym99).
 
 All the content in this repository is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). This module is about processing structured data and has the following learning goals:
 
