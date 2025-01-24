@@ -1,6 +1,6 @@
 # Preparation (Structured Data Processing)
 
-(Last updated: Jan 26, 2024)[^credit]
+(Last updated: Jan 24, 2025)[^credit]
 
 [^credit]: Credit: this teaching material is created by [Yen-Chia Hsu](https://github.com/yenchiah).
 
@@ -12,7 +12,9 @@ You will need to read a paper and interact with the online visualization to expl
 ## Task 1: Read the Paper
 
 First, read the following paper to get an idea about the motivation, background, and design of the Smell Pittsburgh application.
-- Yen-Chia Hsu, Jennifer Cross, Paul Dille, Michael Tasota, Beatrice Dias, Randy Sargent, Ting-Hao (Kenneth) Huang, and Illah Nourbakhsh. 2020. Smell Pittsburgh: Engaging Community Citizen Science for Air Quality. ACM Transactions on Interactive Intelligent Systems. 10, 4, Article 32. DOI:[https://doi.org/10.1145/3369397](https://doi.org/10.1145/3369397). Preprint:[https://arxiv.org/pdf/1912.11936.pdf](https://arxiv.org/pdf/1912.11936.pdf).
+- Yen-Chia Hsu, Jennifer Cross, Paul Dille, Michael Tasota, Beatrice Dias, Randy Sargent, Ting-Hao (Kenneth) Huang, and Illah Nourbakhsh. 2020. Smell Pittsburgh: Engaging Community Citizen Science for Air Quality. ACM Transactions on Interactive Intelligent Systems. 10, 4, Article 32.
+- [Link to source](https://doi.org/10.1145/3369397)
+- [Link to preprint](https://arxiv.org/pdf/1912.11936.pdf)
 
 :::{warning}
 You should already read this paper when preparing the second lecture.
@@ -29,7 +31,7 @@ When reading the paper, write down the answers to the following questions.
 
 After you read the paper mentioned previously, explore the data in the following URL that visualizes smell reports and air quality data.
 Please make sure you read the paper before doing this task.
-- Link to Smell Pittsburgh data visualization: [https://smellpgh.org/visualization](https://smellpgh.org/visualization)
+- [Link to Smell Pittsburgh data visualization](https://smellpgh.org/visualization)
 
 Specifically, please take a look at the following days to understand the distribution of data that have different conditions.
 For example, some days look good, some days have very bad odors, and some days are in the middle of these two extremes.
@@ -46,7 +48,7 @@ Smell events mean the occurance within a time range when many people complained 
 ## Task 3: Check the Statistics
 
 Next, after you explore the data, go to the following web page to see the aggregated statistics to understand the distribution of users and smell reports temporally and spatially.
-- Link to the data analysis page: [https://smellpgh.org/analysis](https://smellpgh.org/analysis)
+- [Link to the data analysis page](https://smellpgh.org/analysis)
 
 When checking the analysis on the above-mentioned web page, answer the following questions and write your answers down.
 - Are there any characteristics about the distribution of smell reports over time and geographical regions?

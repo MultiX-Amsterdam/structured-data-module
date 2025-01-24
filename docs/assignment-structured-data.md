@@ -1,6 +1,6 @@
 # Assignment (Structured Data Processing)
 
-(Last updated: Jan 26, 2024)[^credit]
+(Last updated: Jan 24, 2025)[^credit]
 
 [^credit]: Credit: this teaching material is created by [Yen-Chia Hsu](https://github.com/yenchiah).
 
@@ -16,11 +16,11 @@ Follow the steps below to set up the assignment:
 - Open the notebook file (`docs/tutorial-structured-data.ipynb`) and start working on the tasks.
 
 Follow the steps below to do the assignment:
-- Complete the assignments that are indicated in the tutorial notebook. You can leave out the optional assignment if it is too difficult or takes too much time.
+- Complete the assignments that are indicated in the tutorial notebook.
 - For each task, try your best to implement the solution without checking the answer.
 - In the meantime, use the hint in the task description. You can also check the functions that are mentioned in the hint online.
 - Try your best to implement the solution using the functions in the hint. If you still have no clue, check the answer, understand how it works, and implement the solution again by yourself.
-- If there are parts that you do not understand, feel free to ask questions during the work sessions or on Canvas.
+- If there are parts that you do not understand, feel free to ask questions during the lectures, seminars, or on Canvas.
 
 ## Additional Recourses
 
