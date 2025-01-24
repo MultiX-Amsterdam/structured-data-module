@@ -157,7 +157,7 @@ df_sensor
 # 
 # The column name suffix `SO2_PPM` means sulfur dioxide in unit PPM (parts per million). The prefix `3.feed_1.` in the column name means a specific sensor (feed ID 1). You can ignore the `3.` at the begining of the column name. You can find the list of sensors, their names with feed ID (which will be in the data frame columns), and also the meaning of all the suffixes from [this link](https://github.com/CMU-CREATE-Lab/smell-pittsburgh-prediction/tree/master/dataset/v2.1#description-of-the-air-quality-sensor-data).
 # 
-# Some column names look like `3.feed_11067.SIGTHETA_DEG..3.feed_43.SIGTHETA_DEG`. This means that the column has data from two sensor stations (feed ID 11067 and 43). The reason is that some sensor stations are replaced by the new ones over time. So in this case, we merge sensor readings from both feed ID 11067 and 43. 
+# Some column names look like `3.feed_11067.X..3.feed_43.X`. This means that the column has data from two sensor stations (feed ID 11067 and 43). The reason is that some sensor stations are replaced by the new ones over time. So in this case, we merge sensor readings from both feed ID 11067 and 43. 
 
 # <a name="a4"></a>
 
