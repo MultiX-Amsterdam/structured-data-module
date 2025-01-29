@@ -135,6 +135,16 @@ const thebe_selector_output = ".output, .cell_output"
    Optional Assignment
   </a>
  </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="answer.html">
+   Task Answers
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="util.html">
+   Utility Functions
+  </a>
+ </li>
 </ul>
 
     </div>
@@ -407,6 +417,19 @@ title="Print to PDF"
 <span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">Dataset</span>
 <span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="c1"># Import the answers for the tasks</span>
+<span class="kn">from</span> <span class="nn">util.answer</span> <span class="kn">import</span> <span class="p">(</span>
+   <span class="n">answer_preprocess_sensor</span><span class="p">,</span>
+   <span class="n">answer_preprocess_smell</span><span class="p">,</span>
+   <span class="n">answer_sum_current_and_future_data</span>
+<span class="p">)</span>
+
+<span class="c1"># Import the utility functions that are provided</span>
+<span class="kn">from</span> <span class="nn">util.util</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">convert_wind_direction</span><span class="p">,</span>
+    <span class="n">insert_previous_data_to_cols</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -442,205 +465,10 @@ title="Print to PDF"
 </div>
 </div>
 </div>
-<p>Below we hide a bunch of functions for preprocessing the data. These functions are from the structured data processing tutorial.</p>
+<p>Below we hide the function for computing the features and labels, which is taken from the structured data processing tutorial.</p>
 <div class="cell tag_hide-cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_preprocess_sensor</span><span class="p">(</span><span class="n">df_list</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This function is the answer of task 5.</span>
-<span class="sd">    Preprocess sensor data.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    df_list : list of pandas.DataFrame</span>
-<span class="sd">        A list of data frames that contain sensor data from multiple stations.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    pandas.DataFrame</span>
-<span class="sd">        The preprocessed sensor data.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Resample all the data frames.</span>
-    <span class="n">df_resample_list</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">df_list</span><span class="p">:</span>
-        <span class="c1"># Convert the timestamp to datetime.</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="n">utc</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="c1"># Resample the timestamps by hour and average all the previous values.</span>
-        <span class="c1"># Because we want data from the past, so label need to be &quot;right&quot;.</span>
-        <span class="n">df_resample_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="s2">&quot;60Min&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
-
-    <span class="c1"># Merge all data frames.</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df_resample_list</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">index_name</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span>
-    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_resample_list</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="c1"># We need to use outer merging since we want to preserve data from both data frames.</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge_ordered</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">df_resample_list</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">on</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span> <span class="n">fill_method</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-        <span class="c1"># Move the datetime column to index</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index_name</span><span class="p">)</span>
-
-    <span class="c1"># Fill in the missing data with value -1.</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">df</span>
-
-
-<span class="k">def</span> <span class="nf">answer_preprocess_smell</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This function is the answer of task 4.</span>
-<span class="sd">    Preprocess smell data.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    df : pandas.DataFrame</span>
-<span class="sd">        The raw smell reports data.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    pandas.DataFrame</span>
-<span class="sd">        The preprocessed smell data.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Copy the dataframe to avoid editing the original one.</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="c1"># Drop the columns that we do not need.</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;feelings_symptoms&quot;</span><span class="p">,</span> <span class="s2">&quot;smell_description&quot;</span><span class="p">,</span> <span class="s2">&quot;zipcode&quot;</span><span class="p">])</span>
-
-    <span class="c1"># Select only the reports within the range of 3 and 5.</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;smell_value&quot;</span><span class="p">]</span><span class="o">&gt;=</span><span class="mi">3</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;smell_value&quot;</span><span class="p">]</span><span class="o">&lt;=</span><span class="mi">5</span><span class="p">)]</span>
-
-    <span class="c1"># Convert the timestamp to datetime.</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="n">utc</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="c1"># Resample the timestamps by hour and sum up all the future values.</span>
-    <span class="c1"># Because we want data from the future, so label need to be &quot;left&quot;.</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="s2">&quot;60Min&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-
-    <span class="c1"># Fill in the missing data with value 0.</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">df</span>
-
-
-<span class="k">def</span> <span class="nf">answer_sum_current_and_future_data</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">n_hr</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This function is the answer of task 6.</span>
-<span class="sd">    Sum up data in the current and future hours.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    df : pandas.DataFrame</span>
-<span class="sd">        The preprocessed smell data.</span>
-<span class="sd">    n_hr : int</span>
-<span class="sd">         Number of hours that we want to sum up the future smell data.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    pandas.DataFrame</span>
-<span class="sd">        The transformed smell data.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Copy data frame to prevent editing the original one.</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="c1"># Fast return if n_hr is 0</span>
-    <span class="k">if</span> <span class="n">n_hr</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="k">return</span> <span class="n">df</span>
-
-    <span class="c1"># Sum up all smell_values in future hours.</span>
-    <span class="c1"># The rolling function only works for summing up previous values.</span>
-    <span class="c1"># So we need to shift back to get the value in the future.</span>
-    <span class="c1"># Be careful that we need to add 1 to the rolling window size.</span>
-    <span class="c1"># Becasue window size 1 means only using the current data.</span>
-    <span class="c1"># Parameter &quot;closed&quot; need to be &quot;right&quot; because we want the current data.</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">n_hr</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">n_hr</span><span class="p">)</span>
-
-    <span class="c1"># Below is an alternative implementation of rolling.</span>
-    <span class="c1">#indexer = FixedForwardWindowIndexer(window_size=n_hr+1)</span>
-    <span class="c1">#df = df.rolling(indexer, min_periods=1).sum()</span>
-
-    <span class="c1"># Delete the last n_hr rows.</span>
-    <span class="c1"># These n_hr rows have wrong data due to data shifting.</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">n_hr</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">df</span>
-
-
-<span class="k">def</span> <span class="nf">insert_previous_data_to_cols</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">n_hr</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Insert columns to indicate the data from the previous hours.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    df : pandas.DataFrame</span>
-<span class="sd">        The preprocessed sensor data.</span>
-<span class="sd">    n_hr : int</span>
-<span class="sd">        Number of hours that we want to insert the previous sensor data.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    pandas.DataFrame</span>
-<span class="sd">        The transformed sensor data.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Copy data frame to prevent editing the original one.</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="c1"># Add the data from the previous hours.</span>
-    <span class="n">df_all</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_hr</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="c1"># Shift the data frame to get previous data.</span>
-        <span class="n">df_pre</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
-        <span class="c1"># Edit the name to indicate it is previous data.</span>
-        <span class="c1"># The orginal data frame already has data from the previous 1 hour.</span>
-        <span class="c1"># (as indicated in the preprocessing phase of sensor data)</span>
-        <span class="c1"># So we need to add 1 here.</span>
-        <span class="n">df_pre</span><span class="o">.</span><span class="n">columns</span> <span class="o">+=</span> <span class="s2">&quot;_pre_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">h</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;h&quot;</span>
-        <span class="c1"># Add the data to an array for merging.</span>
-        <span class="n">df_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df_pre</span><span class="p">)</span>
-
-    <span class="c1"># Rename the columns in the original data frame.</span>
-    <span class="c1"># The orginal data frame already has data from the previous 1 hour.</span>
-    <span class="c1"># (as indicated in the preprocessing phase of sensor data)</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">+=</span> <span class="s2">&quot;_pre_1h&quot;</span>
-
-    <span class="c1"># Merge all data.</span>
-    <span class="n">df_merge</span> <span class="o">=</span> <span class="n">df</span>
-    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">df_all</span><span class="p">:</span>
-        <span class="c1"># The join function merges dataframes by index.</span>
-        <span class="n">df_merge</span> <span class="o">=</span> <span class="n">df_merge</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-
-    <span class="c1"># Delete the first n_hr rows.</span>
-    <span class="c1"># These n_hr rows have no data due to data shifting.</span>
-    <span class="n">df_merge</span> <span class="o">=</span> <span class="n">df_merge</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">n_hr</span><span class="p">:]</span>
-    <span class="k">return</span> <span class="n">df_merge</span>
-
-
-<span class="k">def</span> <span class="nf">convert_wind_direction</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert wind directions to sine and cosine components.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    df : pandas.DataFrame</span>
-<span class="sd">        The data frame that contains the wind direction data.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    pandas.DataFrame</span>
-<span class="sd">        The transformed data frame.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Copy data frame to prevent editing the original one.</span>
-    <span class="n">df_cp</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="c1"># Convert columns with wind directions.</span>
-    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s2">&quot;SONICWD_DEG&quot;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
-            <span class="n">df_c</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
-            <span class="n">df_c_cos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">df_c</span><span class="p">))</span>
-            <span class="n">df_c_sin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">df_c</span><span class="p">))</span>
-            <span class="n">df_c_cos</span><span class="o">.</span><span class="n">name</span> <span class="o">+=</span> <span class="s2">&quot;_cosine&quot;</span>
-            <span class="n">df_c_sin</span><span class="o">.</span><span class="n">name</span> <span class="o">+=</span> <span class="s2">&quot;_sine&quot;</span>
-            <span class="n">df_cp</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="n">c</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">df_cp</span><span class="p">[</span><span class="n">df_c_cos</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_c_cos</span>
-            <span class="n">df_cp</span><span class="p">[</span><span class="n">df_c_sin</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_c_sin</span>
-    <span class="k">return</span> <span class="n">df_cp</span>
-
-
-<span class="k">def</span> <span class="nf">compute_feature_label</span><span class="p">(</span><span class="n">df_smell</span><span class="p">,</span> <span class="n">df_sensor</span><span class="p">,</span> <span class="n">b_hr_sensor</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">f_hr_smell</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">compute_feature_label</span><span class="p">(</span><span class="n">df_smell</span><span class="p">,</span> <span class="n">df_sensor</span><span class="p">,</span> <span class="n">b_hr_sensor</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">f_hr_smell</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute features and labels from the smell and sensor data.</span>
 
@@ -1396,48 +1224,48 @@ title="Print to PDF"
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  7%|██▏                             | 2/30 [00:00&lt;00:06,  4.05it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  3%|████▌                                                                                                                                    | 1/30 [00:03&lt;01:29,  3.09s/it]
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>========================================
 Epoch 0
-averaged training precision: 0.347569
-averaged training recall: 0.050568
-averaged training fscore: 0.085399
-averaged training loss: 0.410165
+averaged training precision: 0.319345
+averaged training recall: 0.053474
+averaged training fscore: 0.084596
+averaged training loss: 0.464480
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 37%|███████████▎                   | 11/30 [00:02&lt;00:03,  4.80it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 37%|█████████████████████████████████████████████████▊                                                                                      | 11/30 [00:05&lt;00:04,  3.96it/s]
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>========================================
 Epoch 10
-averaged training precision: 0.853211
-averaged training recall: 0.377262
-averaged training fscore: 0.508721
-averaged training loss: 0.137110
+averaged training precision: 0.855586
+averaged training recall: 0.386818
+averaged training fscore: 0.517455
+averaged training loss: 0.134965
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 70%|█████████████████████▋         | 21/30 [00:04&lt;00:01,  4.84it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 70%|███████████████████████████████████████████████████████████████████████████████████████████████▏                                        | 21/30 [00:07&lt;00:02,  4.39it/s]
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>========================================
 Epoch 20
-averaged training precision: 0.892700
-averaged training recall: 0.480476
-averaged training fscore: 0.614713
-averaged training loss: 0.109115
+averaged training precision: 0.896683
+averaged training recall: 0.490291
+averaged training fscore: 0.621773
+averaged training loss: 0.109125
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|███████████████████████████████| 30/30 [00:06&lt;00:00,  4.76it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 30/30 [00:09&lt;00:00,  3.11it/s]
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>========================================
 ========================================
 Validate model performance:
-averaged validation precision: 0.953974
-averaged validation recall: 0.553031
-averaged validation fscore: 0.687117
+averaged validation precision: 0.957547
+averaged validation recall: 0.539046
+averaged validation fscore: 0.681940
 </pre></div>
 </div>
 <div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
