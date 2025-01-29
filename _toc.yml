@@ -16,3 +16,7 @@ parts:
     title: "PyTorch Implementation"
   - file: docs/assignment-structured-data-optional
     title: "Optional Assignment"
+  - file: docs/answer
+    title: "Task Answers"
+  - file: docs/util
+    title: "Utility Functions"
