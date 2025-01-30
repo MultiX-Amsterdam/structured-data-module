@@ -320,7 +320,7 @@ dataloader_train = DeviceDataLoader(dataloader_train, device)
 dataloader_validation = DeviceDataLoader(dataloader_validation, device)
 
 
-# Next, we need to define the deep regression model. We use two layers of linear neurons. The first layer maps the features to 6 hidden units (i.e., linear neurons), and the second layer maps 6 hidden units to one single output (i.e., whether there is a smell event or not).
+# Next, we need to define the deep regression model. We use two layers of linear neurons. The first layer maps the features to 4 hidden units (i.e., linear neurons), and the second layer maps 4 hidden units to one single output (i.e., whether there is a smell event or not).
 # 
 # Notice that for computational efficiency, we do not need to ensure that the output is probability since the loss function that we will define later already does this job for us (i.e., the [torch.nn.BCEWithLogitsLoss](https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html)). We only need to make sure that it is probability later when we are going to use the model to make predictions of events for our task.
 # 
