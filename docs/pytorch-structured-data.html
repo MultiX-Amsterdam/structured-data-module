@@ -1102,7 +1102,7 @@ Test dataset size: 3351
 </div>
 </div>
 </div>
-<p>Next, we need to define the deep regression model. We use two layers of linear neurons. The first layer maps the features to 6 hidden units (i.e., linear neurons), and the second layer maps 6 hidden units to one single output (i.e., whether there is a smell event or not).</p>
+<p>Next, we need to define the deep regression model. We use two layers of linear neurons. The first layer maps the features to 4 hidden units (i.e., linear neurons), and the second layer maps 4 hidden units to one single output (i.e., whether there is a smell event or not).</p>
 <p>Notice that for computational efficiency, we do not need to ensure that the output is probability since the loss function that we will define later already does this job for us (i.e., the <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html">torch.nn.BCEWithLogitsLoss</a>). We only need to make sure that it is probability later when we are going to use the model to make predictions of events for our task.</p>
 <p>In the forward function, we define how the network will pass the result from each layer to the next layer. We use the ReLU activation function between the first and second layers to introduce some non-linearity. We do not need to define a backward function since PyTorch can automatically compute and backpropagate the gradients for us to iteratively update the model weights.</p>
 <p>In this case, we choose to use 4 hidden units for demonstration purposes. In reality, this is a hyperparameter that you can tune. The input size should match the number of features (otherwise, running the code will give an error).</p>
