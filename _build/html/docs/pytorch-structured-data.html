@@ -392,7 +392,7 @@ title="Print to PDF"
                 
   <section class="tex2jax_ignore mathjax_ignore" id="pytorch-implementation-structured-data-processing">
 <h1>PyTorch Implementation (Structured Data Processing)<a class="headerlink" href="#pytorch-implementation-structured-data-processing" title="Permalink to this headline">#</a></h1>
-<p>(Last updated: Feb 12, 2024)<a class="footnote-reference brackets" href="#credit" id="id1">1</a></p>
+<p>(Last updated: Jan 30, 2025)<a class="footnote-reference brackets" href="#credit" id="id1">1</a></p>
 <p>In this practice, we will guide you using the PyTorch deep learning framework to implement a deep regression model on the Smell Pittsburgh dataset. We only provide the basics in this notebook, and the following resources give more detailed information about PyTorch:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://www.youtube.com/watch?v=wnKZZgFQY-E">Introduction to PyTorch (Part 1), UvA Deep Learning Course</a></p></li>
@@ -411,6 +411,7 @@ title="Print to PDF"
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">isfile</span>
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span>
 <span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">listdir</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
 <span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="nn">optim</span>
@@ -994,17 +995,30 @@ title="Print to PDF"
 </div>
 </div>
 </div>
-<p>We can use the dataset to create a training and validation set. In the code below, we use the first 8000 data points as the training set, followed by 168 data points as the validation set. We will use the training set to train the model and the validation set for evaluating model performance. In this case, 8000 data points mean 8000 hours, which is about 11 months in real-world time, and 168 data points represent about 7 days of time. The reason for doing this kind of split is because Smell Pittsburgh is a time-series dataset, which means we should use data from the past to predict the outcome in the future, but not the other way around.</p>
+<p>We can use the dataset to create a training and validation set. In the code below, we use the first 60% of data points as the training set, followed by 20% data points as the validation set. The remaining data points are used as the test set. We will use the training set to train the model, the validation set for model selection, and the test set for evaluating model performance. The reason for doing this kind of split is because Smell Pittsburgh is a time-series dataset, which means we should use data from the past to predict the outcome in the future, but not the other way around.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">train_size</span> <span class="o">=</span> <span class="mi">8000</span>
-<span class="n">validation_size</span> <span class="o">=</span> <span class="mi">168</span>
-<span class="n">test_size</span> <span class="o">=</span> <span class="mi">168</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n</span> <span class="o">=</span> <span class="n">df_y</span><span class="o">.</span><span class="n">size</span>
+<span class="n">train_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="mf">0.6</span><span class="p">)</span>
+<span class="n">validation_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="mf">0.2</span><span class="p">)</span>
 <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">8000</span>
-<span class="n">k</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">168</span>
+<span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="n">train_size</span>
+<span class="n">k</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="n">validation_size</span>
 <span class="n">dataset_train</span> <span class="o">=</span> <span class="n">SmellPittsburghDataset</span><span class="p">(</span><span class="n">feature</span><span class="o">=</span><span class="n">feature</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">j</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">j</span><span class="p">])</span>
 <span class="n">dataset_validation</span> <span class="o">=</span> <span class="n">SmellPittsburghDataset</span><span class="p">(</span><span class="n">feature</span><span class="o">=</span><span class="n">feature</span><span class="p">[</span><span class="n">j</span><span class="p">:</span><span class="n">k</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">[</span><span class="n">j</span><span class="p">:</span><span class="n">k</span><span class="p">])</span>
+<span class="n">dataset_test</span> <span class="o">=</span> <span class="n">SmellPittsburghDataset</span><span class="p">(</span><span class="n">feature</span><span class="o">=</span><span class="n">feature</span><span class="p">[</span><span class="n">k</span><span class="p">:],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">[</span><span class="n">k</span><span class="p">:])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total dataset size: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">n</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Training dataset size: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_train</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Validation dataset size: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_validation</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Test dataset size: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_test</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Total dataset size: 16751
+Training dataset size: 10050
+Validation dataset size: 3350
+Test dataset size: 3351
 </pre></div>
 </div>
 </div>
@@ -1031,19 +1045,14 @@ title="Print to PDF"
     <span class="k">if</span> <span class="n">y_predict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Compute metrics and return them</span>
         <span class="n">eq</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_predict</span> <span class="o">==</span> <span class="n">y</span><span class="p">)</span>
-        <span class="n">tp</span> <span class="o">=</span> <span class="p">(</span><span class="n">eq</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y_predict</span> <span class="o">==</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-        <span class="n">tn</span> <span class="o">=</span> <span class="p">(</span><span class="n">eq</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y_predict</span> <span class="o">==</span> <span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-        <span class="n">fp</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_predict</span> <span class="o">&gt;</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-        <span class="n">fn</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_predict</span> <span class="o">&lt;</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-        <span class="n">tpfp</span> <span class="o">=</span> <span class="n">tp</span> <span class="o">+</span> <span class="n">fp</span>
-        <span class="n">tpfn</span> <span class="o">=</span> <span class="n">tp</span> <span class="o">+</span> <span class="n">fn</span>
-        <span class="n">precision</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">tpfp</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">tp</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">tpfp</span><span class="p">)</span>
-        <span class="n">recall</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">tpfn</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">tp</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">tpfn</span><span class="p">)</span>
-        <span class="n">fscore</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">precision</span><span class="o">+</span><span class="n">recall</span><span class="o">==</span><span class="mi">0</span> <span class="k">else</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">precision</span><span class="o">*</span><span class="n">recall</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">precision</span><span class="o">+</span><span class="n">recall</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;precision&quot;</span><span class="p">:</span> <span class="n">precision</span><span class="p">,</span> <span class="s2">&quot;recall&quot;</span><span class="p">:</span> <span class="n">recall</span><span class="p">,</span> <span class="s2">&quot;fscore&quot;</span><span class="p">:</span> <span class="n">fscore</span><span class="p">}</span>
+        <span class="n">tp</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">eq</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y_predict</span> <span class="o">==</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> <span class="c1"># true positive</span>
+        <span class="n">tn</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">eq</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y_predict</span> <span class="o">==</span> <span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> <span class="c1"># true negative</span>
+        <span class="n">fp</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">y_predict</span> <span class="o">&gt;</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> <span class="c1"># false positive</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">y_predict</span> <span class="o">&lt;</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> <span class="c1"># false negative</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;tp&quot;</span><span class="p">:</span> <span class="n">tp</span><span class="p">,</span> <span class="s2">&quot;tn&quot;</span><span class="p">:</span> <span class="n">tn</span><span class="p">,</span> <span class="s2">&quot;fp&quot;</span><span class="p">:</span> <span class="n">fp</span><span class="p">,</span> <span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="p">}</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Return the structure of the dictionary with empty arrays for initialization</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;precision&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;recall&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;fscore&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;tp&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;tn&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;fp&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="p">[]}</span>
 </pre></div>
 </div>
 </div>
@@ -1093,22 +1102,22 @@ title="Print to PDF"
 </div>
 </div>
 </div>
-<p>Next, we need to define the deep regression model. We use two layers of linear neurons. The first layer maps the features to 64 hidden units (i.e., linear neurons), and the second layer maps 64 hidden units to one single output (i.e., whether there is a smell event or not).</p>
+<p>Next, we need to define the deep regression model. We use two layers of linear neurons. The first layer maps the features to 6 hidden units (i.e., linear neurons), and the second layer maps 6 hidden units to one single output (i.e., whether there is a smell event or not).</p>
 <p>Notice that for computational efficiency, we do not need to ensure that the output is probability since the loss function that we will define later already does this job for us (i.e., the <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html">torch.nn.BCEWithLogitsLoss</a>). We only need to make sure that it is probability later when we are going to use the model to make predictions of events for our task.</p>
 <p>In the forward function, we define how the network will pass the result from each layer to the next layer. We use the ReLU activation function between the first and second layers to introduce some non-linearity. We do not need to define a backward function since PyTorch can automatically compute and backpropagate the gradients for us to iteratively update the model weights.</p>
-<p>In this case, we choose to use 64 hidden units for demonstration purposes. In reality, this is a hyperparameter that you can tune. The input size should match the number of features (otherwise, running the code will give an error).</p>
+<p>In this case, we choose to use 4 hidden units for demonstration purposes. In reality, this is a hyperparameter that you can tune. The input size should match the number of features (otherwise, running the code will give an error).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">DeepRegression</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">output_size</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">output_size</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">DeepRegression</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">linear1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">input_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">relu</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relu1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">linear2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">output_size</span><span class="p">)</span>
-
+        
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relu1</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
         <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear2</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">out</span>
 </pre></div>
@@ -1117,13 +1126,13 @@ title="Print to PDF"
 </div>
 <p>We are getting close to being able to train the model. The last three things that we need are to create the model object, specify the loss function (for the optimization algorithm to compute the error so that PyTorch can compute and backpropagate the gradients to update the model weights), and define the optimizer (i.e., the optimization algorithm).</p>
 <p>Regarding the model, the code above defines a class. To be able to use it, we need to use the class to create an object. Think about a class as a design specification (e.g., spec for a car) and an object as producing the real design artifact (e.g., a real car). Regarding the loss criterion, we use the <a class="reference external" href="https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/tutorial2/Introduction_to_PyTorch.html#Loss-modules">Binary Cross Entropy (BCE) loss function</a>, which is standard for binary classification. Notice that we are not using <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.BCELoss.html">torch.nn.BCELoss</a> for computational efficiency. The <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html">torch.nn.BCEWithLogitsLoss</a> that we use instead here can take care of the job of transforming the output of the final neural network layer into probabilities.</p>
-<p>Regarding the optimizer, we use the <a class="reference external" href="https://arxiv.org/pdf/1412.6980.pdf">Adam optimization algorithm</a>, which is a variation of Stochastic Gradient Descent with advanced capabilities in scheduling learning rates and scaling the gradients dynamically. Here, we use <code class="docutils literal notranslate"><span class="pre">0.0005</span></code> as the learning rate and <code class="docutils literal notranslate"><span class="pre">0.0001</span></code> as the weight decay for regularization. Adding the regularization can make the training more stable and prevent overfitting. In reality, they are hyperparameters for tuning.</p>
+<p>Regarding the optimizer, we use the <a class="reference external" href="https://arxiv.org/pdf/1412.6980.pdf">Adam optimization algorithm</a>, which is a variation of Stochastic Gradient Descent with advanced capabilities in scheduling learning rates and scaling the gradients dynamically. Here, we use <code class="docutils literal notranslate"><span class="pre">0.0001</span></code> as the learning rate and <code class="docutils literal notranslate"><span class="pre">0.000001</span></code> as the weight decay for regularization. Adding the regularization can make the training more stable and prevent overfitting. In reality, they are hyperparameters for tuning.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">DeepRegression</span><span class="p">(</span><span class="n">feature</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">to_device</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span> <span class="c1"># move the model to the specified device</span>
 <span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">BCEWithLogitsLoss</span><span class="p">()</span>
-<span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.0005</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">)</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="mf">0.000001</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1132,7 +1141,7 @@ title="Print to PDF"
 <p>As mentioned before, the output of the model is not probability for computational efficiency. But when computing the model performance, we need the probability to determine how likely there will be smell events. We will use the Sigmoid function to convert the output from the final layer to probabilities that sum up to one. Then, we can check if the probability is larger than a threshold (e.g., 0.5).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_model</span><span class="p">(</span><span class="n">dataloader</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">num_epochs</span><span class="p">):</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_model</span><span class="p">(</span><span class="n">dataloader</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">num_epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">check_step</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Train a PyTorch model and print model performance metrics.</span>
 
@@ -1148,9 +1157,23 @@ title="Print to PDF"
 <span class="sd">        The optimization algorithm.</span>
 <span class="sd">    num_epochs : int</span>
 <span class="sd">        Number of epochs for training the model.</span>
+<span class="sd">    threshold : float</span>
+<span class="sd">        The threshold of probability to decide if the output should be 1.</span>
+<span class="sd">    check_step : int</span>
+<span class="sd">        Number of epochs to create a check point for evaluation.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        A tuple with two dictionaries.</span>
+<span class="sd">        The first one is the evaluation of the training history.</span>
+<span class="sd">        The second one is the evaluation of the validation history.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span> <span class="c1"># set the model to training mode</span>
+    
     <span class="c1"># Loop epochs</span>
+    <span class="n">train_score_history</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;precision&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;recall&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;fscore&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+    <span class="n">eval_score_history</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;precision&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;recall&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;fscore&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="p">[]}</span>
     <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">)):</span>
         <span class="n">score_arrays</span> <span class="o">=</span> <span class="n">binary_scorer</span><span class="p">()</span> <span class="c1"># get the empty structure</span>
         <span class="n">score_arrays</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># add the field for appending the loss</span>
@@ -1163,17 +1186,66 @@ title="Print to PDF"
             <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span> <span class="c1"># update model weights</span>
             <span class="n">score_arrays</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span> <span class="c1"># append the loss</span>
             <span class="n">y_label</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span> <span class="c1"># turn model output into probabilities</span>
-            <span class="n">y_label</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_pred</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span> <span class="c1"># turn probabilities to labels with 0 or 1</span>
+            <span class="n">y_label</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_pred</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span> <span class="c1"># turn probabilities to labels with 0 or 1</span>
             <span class="n">score</span> <span class="o">=</span> <span class="n">binary_scorer</span><span class="p">(</span><span class="n">y_label</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="c1"># compute evaluation metrics</span>
             <span class="c1"># Append the evaluation metrics to the arrays</span>
-            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">score</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">score</span><span class="p">:</span> <span class="c1"># k means the type of score, such as precision or recall</span>
                 <span class="n">score_arrays</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
-        <span class="c1"># After every 10 epochs, print the averaged evaluation metrics</span>
-        <span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">40</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Epoch </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">epoch</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">score_arrays</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;averaged training </span><span class="si">%s</span><span class="s2">: </span><span class="si">%4f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">score_arrays</span><span class="p">[</span><span class="n">k</span><span class="p">])))</span>
+        <span class="c1"># After every 10 epochs, compute the evaluation metrics for that epoch</span>
+        <span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span> <span class="n">check_step</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">averaged_loss_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">score_arrays</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">])</span>
+            <span class="n">sum_tp_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">score_arrays</span><span class="p">[</span><span class="s2">&quot;tp&quot;</span><span class="p">])</span>
+            <span class="n">sum_fp_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">score_arrays</span><span class="p">[</span><span class="s2">&quot;fp&quot;</span><span class="p">])</span>
+            <span class="n">sum_fn_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">score_arrays</span><span class="p">[</span><span class="s2">&quot;fn&quot;</span><span class="p">])</span>
+            <span class="n">p_train</span><span class="p">,</span> <span class="n">r_train</span><span class="p">,</span> <span class="n">f_train</span> <span class="o">=</span> <span class="n">compute_prf</span><span class="p">(</span><span class="n">sum_tp_train</span><span class="p">,</span> <span class="n">sum_fp_train</span><span class="p">,</span> <span class="n">sum_fn_train</span><span class="p">)</span>
+            <span class="n">train_score_history</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">averaged_loss_train</span><span class="p">)</span>
+            <span class="n">train_score_history</span><span class="p">[</span><span class="s2">&quot;precision&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p_train</span><span class="p">)</span>
+            <span class="n">train_score_history</span><span class="p">[</span><span class="s2">&quot;recall&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r_train</span><span class="p">)</span>
+            <span class="n">train_score_history</span><span class="p">[</span><span class="s2">&quot;fscore&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f_train</span><span class="p">)</span>
+            <span class="n">eval_score_arrays</span> <span class="o">=</span> <span class="n">evaluate_model</span><span class="p">(</span><span class="n">dataloader_validation</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">)</span>
+            <span class="n">averaged_loss_eval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">eval_score_arrays</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">])</span>
+            <span class="n">sum_tp_eval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">eval_score_arrays</span><span class="p">[</span><span class="s2">&quot;tp&quot;</span><span class="p">])</span>
+            <span class="n">sum_fp_eval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">eval_score_arrays</span><span class="p">[</span><span class="s2">&quot;fp&quot;</span><span class="p">])</span>
+            <span class="n">sum_fn_eval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">eval_score_arrays</span><span class="p">[</span><span class="s2">&quot;fn&quot;</span><span class="p">])</span>
+            <span class="n">p_eval</span><span class="p">,</span> <span class="n">r_eval</span><span class="p">,</span> <span class="n">f_eval</span> <span class="o">=</span> <span class="n">compute_prf</span><span class="p">(</span><span class="n">sum_tp_eval</span><span class="p">,</span> <span class="n">sum_fp_eval</span><span class="p">,</span> <span class="n">sum_fn_eval</span><span class="p">)</span>
+            <span class="n">eval_score_history</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">averaged_loss_eval</span><span class="p">)</span>
+            <span class="n">eval_score_history</span><span class="p">[</span><span class="s2">&quot;precision&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p_eval</span><span class="p">)</span>
+            <span class="n">eval_score_history</span><span class="p">[</span><span class="s2">&quot;recall&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r_eval</span><span class="p">)</span>
+            <span class="n">eval_score_history</span><span class="p">[</span><span class="s2">&quot;fscore&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f_eval</span><span class="p">)</span>
+            
+    <span class="c1"># Return the evaluation metrics</span>
+    <span class="k">return</span> <span class="n">train_score_history</span><span class="p">,</span> <span class="n">eval_score_history</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The function below computes precision, recall, and F-score.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">compute_prf</span><span class="p">(</span><span class="n">tp</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute precision, recall, and f-score based on the confusion matrix.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tp : int or float</span>
+<span class="sd">        Number of true positives.</span>
+<span class="sd">    fp : int or float</span>
+<span class="sd">        Number of false positives.</span>
+<span class="sd">    fn : int or float</span>
+<span class="sd">        Number of false negatives.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        A dictionary with precision, recall, and f-score.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tpfp</span> <span class="o">=</span> <span class="n">tp</span> <span class="o">+</span> <span class="n">fp</span>
+    <span class="n">tpfn</span> <span class="o">=</span> <span class="n">tp</span> <span class="o">+</span> <span class="n">fn</span>
+    <span class="n">precision</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">tpfp</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">tp</span><span class="o">/</span><span class="n">tpfp</span>
+    <span class="n">recall</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">tpfn</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">tp</span><span class="o">/</span><span class="n">tpfn</span>
+    <span class="n">fscore</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">precision</span><span class="o">+</span><span class="n">recall</span><span class="o">==</span><span class="mi">0</span> <span class="k">else</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">precision</span><span class="o">*</span><span class="n">recall</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">precision</span><span class="o">+</span><span class="n">recall</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">precision</span><span class="p">,</span> <span class="n">recall</span><span class="p">,</span> <span class="n">fscore</span>
 </pre></div>
 </div>
 </div>
@@ -1181,7 +1253,7 @@ title="Print to PDF"
 <p>Next, we need a function to evaluate the model on the valiation or test set.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">evaluate_model</span><span class="p">(</span><span class="n">dataloader</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">evaluate_model</span><span class="p">(</span><span class="n">dataloader</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evaluate a PyTorch model and print model performance metrics.</span>
 
@@ -1191,100 +1263,106 @@ title="Print to PDF"
 <span class="sd">        The dataloader object.</span>
 <span class="sd">    model : torch.nn.Module</span>
 <span class="sd">        The PyTorch model that we want to train.</span>
+<span class="sd">    threshold : float</span>
+<span class="sd">        The threshold of probability to decide if the output should be 1.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict of arrays</span>
+<span class="sd">        A dictionary of evaluation metrics.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span> <span class="c1"># set the model to evaluation mode</span>
+    
     <span class="c1"># Since we do not want to train the model, make sure that we deactivate the gradients</span>
     <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
         <span class="n">score_arrays</span> <span class="o">=</span> <span class="n">binary_scorer</span><span class="p">()</span> <span class="c1"># get the empty structure</span>
+        <span class="n">score_arrays</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># add the field for appending the loss</span>
         <span class="c1"># Loop the dataloader</span>
         <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">dataloader</span><span class="p">:</span>
             <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="c1"># make predictions using the model</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="c1"># compute the loss</span>
             <span class="n">y_label</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span> <span class="c1"># turn model output into probabilities</span>
-            <span class="n">y_label</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_pred</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span> <span class="c1"># turn probabilities to labels with 0 or 1</span>
+            <span class="n">y_label</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_pred</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span> <span class="c1"># turn probabilities to labels with 0 or 1</span>
             <span class="n">score</span> <span class="o">=</span> <span class="n">binary_scorer</span><span class="p">(</span><span class="n">y_label</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="c1"># compute evaluation metrics</span>
             <span class="c1"># Append the evaluation metrics to the arrays</span>
             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">score</span><span class="p">:</span>
                 <span class="n">score_arrays</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
-    <span class="c1"># Print the averaged evaluation metrics</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">40</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">40</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Validate model performance:&quot;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">score_arrays</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;averaged validation </span><span class="si">%s</span><span class="s2">: </span><span class="si">%4f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">score_arrays</span><span class="p">[</span><span class="n">k</span><span class="p">])))</span>
+            <span class="n">score_arrays</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span> <span class="c1"># append the loss</span>
+
+    <span class="c1"># Return the evaluation metrics</span>
+    <span class="k">return</span> <span class="n">score_arrays</span>
 </pre></div>
 </div>
 </div>
 </div>
-<p>Finally, we can now run the functions to train the model for 30 epochs and evaluate the model on the validation set. In practice, you can run the model for many epochs, save the model for every X epochs (e.g., X=5), and pick the model with the highest performance on the validation set.</p>
+<p>Finally, we can now run the functions to train the model for several epochs and evaluate the model on the validation set. In practice, you can run the model for many epochs, save the model for every X epochs (e.g., X=5), and pick the model with the highest performance on the validation set. It may take a while to run the training code, depending on the performance of your computer.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">train_model</span><span class="p">(</span><span class="n">dataloader_train</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
-<span class="n">evaluate_model</span><span class="p">(</span><span class="n">dataloader_train</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">check_step</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">num_epochs</span> <span class="o">=</span> <span class="mi">80</span>
+<span class="n">t_history</span><span class="p">,</span> <span class="n">v_history</span> <span class="o">=</span> <span class="n">train_model</span><span class="p">(</span><span class="n">dataloader_train</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">num_epochs</span><span class="o">=</span><span class="n">num_epochs</span><span class="p">,</span> <span class="n">check_step</span><span class="o">=</span><span class="n">check_step</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  3%|████▌                                                                                                                                    | 1/30 [00:03&lt;01:29,  3.09s/it]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|███████████████████████████████████████████| 80/80 [00:27&lt;00:00,  2.95it/s]
 </pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>========================================
-Epoch 0
-averaged training precision: 0.319345
-averaged training recall: 0.053474
-averaged training fscore: 0.084596
-averaged training loss: 0.464480
+</div>
+</div>
+<p>Plot the F-scores and loss for the training and validation sets.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">epochs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">check_step</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">t_history</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]))]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">epochs</span><span class="p">,</span> <span class="n">t_history</span><span class="p">[</span><span class="s2">&quot;fscore&quot;</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Training F-score&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">epochs</span><span class="p">,</span> <span class="n">v_history</span><span class="p">[</span><span class="s2">&quot;fscore&quot;</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Validation F-score&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Epochs&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;F-score&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Training vs Validation F-score over Epochs&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">epochs</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">epochs</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">([</span><span class="n">i</span><span class="o">/</span><span class="mi">20</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">21</span><span class="p">)])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 37%|█████████████████████████████████████████████████▊                                                                                      | 11/30 [00:05&lt;00:04,  3.96it/s]
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/pytorch-structured-data_41_0.png" src="../_images/pytorch-structured-data_41_0.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">epochs</span><span class="p">,</span> <span class="n">t_history</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Training Loss&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">epochs</span><span class="p">,</span> <span class="n">v_history</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Validation Loss&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Epochs&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Loss&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">epochs</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">epochs</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Training vs Validation Loss over Epochs&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>========================================
-Epoch 10
-averaged training precision: 0.855586
-averaged training recall: 0.386818
-averaged training fscore: 0.517455
-averaged training loss: 0.134965
-</pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 70%|███████████████████████████████████████████████████████████████████████████████████████████████▏                                        | 21/30 [00:07&lt;00:02,  4.39it/s]
-</pre></div>
-</div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>========================================
-Epoch 20
-averaged training precision: 0.896683
-averaged training recall: 0.490291
-averaged training fscore: 0.621773
-averaged training loss: 0.109125
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 30/30 [00:09&lt;00:00,  3.11it/s]
-</pre></div>
-</div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>========================================
-========================================
-Validate model performance:
-averaged validation precision: 0.957547
-averaged validation recall: 0.539046
-averaged validation fscore: 0.681940
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
+<div class="cell_output docutils container">
+<img alt="../_images/pytorch-structured-data_42_0.png" src="../_images/pytorch-structured-data_42_0.png" />
 </div>
 </div>
 <section id="your-task">
 <h2>Your Task<a class="headerlink" href="#your-task" title="Permalink to this headline">#</a></h2>
-<p>We have used the deep regression model to perform smell event classification on the Smell Pittsburgh dataset. Now, your task is to implement cross-validation (similar to the one that is used in the structured data processing tutorial) and perform hyperparameter tuning. Write your code below and print the averaged precision, recall, and F1 score after performing cross-validation and hyperparameter tuning. There are four hyperparameters that you can tune: the hidden unit size of the model, learning rate, weight decay, and batch size.</p>
-<p>Notice that you also need to allocate a test set to have a more objective estimation of model performance. The test set cannot be seen by the model during hyperparameter tuning. Report also the precision, recall, and F1 score for the test set.</p>
-<p>Optionally, you can also change the model architecture, such as adding more layers or changing the activation function. Have fun playing with deep learning models!</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Write your code here</span>
-</pre></div>
-</div>
-</div>
-</div>
+<p>We have used the deep regression model to perform smell event classification on the Smell Pittsburgh dataset. Now, check the previous two graphs again. What is the biggest problem with this model and the training procedure? How do you plan to improve it? Provide your answer below:</p>
+<p>(Write your answer here)</p>
+<p>Now, it is your turn to implement the plan that you provided above. Edit the model architecture and the hyper-parameters to improve the performance of your model. For example, you can try adding more layers, increasing the number of hidden units in the layers, tweaking the learning rate, tweaking the weight decay (i.e., regularization), etc. There is a set of hyper-parameters and a model architecture that can bring your model performance to f-score 0.5 (or above) at some point of time within 80 epochs, and then the performance will converge at about 0.45 f-score (or slightly more than that), such as the graph below:</p>
+<p><img alt="image.png" src="../_images/pytorch-performance-example.png" /></p>
+<p>The result should be fairly stable, which means if you re-run the entire notebook for several times, the result should be roughly the same. Explain how you find this set of hyper-parameters and model architecture below.</p>
+<p>(Write your answer here)</p>
+<p>You can find the answer to the task in <a class="reference internal" href="answer.html"><span class="doc std std-doc">this link</span></a>. Do not look at the answer first. Instead, try to do the task by yourself, and then check the answer for reference.</p>
 <hr class="footnotes docutils" />
 <dl class="footnote brackets">
 <dt class="label" id="credit"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
