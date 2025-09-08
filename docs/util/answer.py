@@ -8,7 +8,7 @@ from util.util import train_and_evaluate
 
 def answer_preprocess_sensor(df_list):
     """
-    This function is the answer of task 5.
+    This function is the answer of task 4.
     Preprocess sensor data.
 
     Parameters
@@ -52,7 +52,7 @@ def answer_preprocess_sensor(df_list):
 
 def answer_preprocess_smell(df):
     """
-    This function is the answer of task 4.
+    This function is the answer of task 5.
     Preprocess smell data.
 
     Parameters
@@ -164,6 +164,6 @@ def answer_experiment(df_x, df_y):
         for fs in feature_sets:
             print("Use feature set %s" % (str(fs)))
             df_x_fs = df_x[fs]
-            train_and_evaluate(m, df_x_fs, df_y, train_size=1440, test_size=168)
+            train_and_evaluate(m, df_x_fs, df_y, train_size=1000, test_size=200)
             compute_feature_importance(m, df_x_fs, df_y, scoring="f1")
             print("")
