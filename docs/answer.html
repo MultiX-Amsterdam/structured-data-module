@@ -326,6 +326,13 @@ title="Print to PDF"
   <a class="reference internal nav-link" href="#tutorial-tasks">
    Tutorial Tasks
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#answer-for-task-7">
+     Answer for Task 7
+    </a>
+   </li>
+  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#pytorch-implementation-tasks">
@@ -355,6 +362,13 @@ title="Print to PDF"
   <a class="reference internal nav-link" href="#tutorial-tasks">
    Tutorial Tasks
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#answer-for-task-7">
+     Answer for Task 7
+    </a>
+   </li>
+  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#pytorch-implementation-tasks">
@@ -373,7 +387,7 @@ title="Print to PDF"
                 
   <section class="tex2jax_ignore mathjax_ignore" id="task-answers-structured-data-processing">
 <h1>Task Answers (Structured Data Processing)<a class="headerlink" href="#task-answers-structured-data-processing" title="Permalink to this headline">#</a></h1>
-<p>(Last updated: Jan 29, 2025)</p>
+<p>(Last updated: Sep 8, 2025)</p>
 <section id="tutorial-tasks">
 <h2>Tutorial Tasks<a class="headerlink" href="#tutorial-tasks" title="Permalink to this headline">#</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -386,7 +400,7 @@ title="Print to PDF"
 
 <span class="k">def</span> <span class="nf">answer_preprocess_sensor</span><span class="p">(</span><span class="n">df_list</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This function is the answer of task 5.</span>
+<span class="sd">    This function is the answer of task 4.</span>
 <span class="sd">    Preprocess sensor data.</span>
 
 <span class="sd">    Parameters</span>
@@ -430,7 +444,7 @@ title="Print to PDF"
 
 <span class="k">def</span> <span class="nf">answer_preprocess_smell</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This function is the answer of task 4.</span>
+<span class="sd">    This function is the answer of task 5.</span>
 <span class="sd">    Preprocess smell data.</span>
 
 <span class="sd">    Parameters</span>
@@ -542,11 +556,91 @@ title="Print to PDF"
         <span class="k">for</span> <span class="n">fs</span> <span class="ow">in</span> <span class="n">feature_sets</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Use feature set </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fs</span><span class="p">)))</span>
             <span class="n">df_x_fs</span> <span class="o">=</span> <span class="n">df_x</span><span class="p">[</span><span class="n">fs</span><span class="p">]</span>
-            <span class="n">train_and_evaluate</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">df_x_fs</span><span class="p">,</span> <span class="n">df_y</span><span class="p">,</span> <span class="n">train_size</span><span class="o">=</span><span class="mi">1440</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mi">168</span><span class="p">)</span>
+            <span class="n">train_and_evaluate</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">df_x_fs</span><span class="p">,</span> <span class="n">df_y</span><span class="p">,</span> <span class="n">train_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
             <span class="n">compute_feature_importance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">df_x_fs</span><span class="p">,</span> <span class="n">df_y</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s2">&quot;f1&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<section id="answer-for-task-7">
+<h3>Answer for Task 7<a class="headerlink" href="#answer-for-task-7" title="Permalink to this headline">#</a></h3>
+<ul class="simple">
+<li><p>Q1: In your opinion, is including sensor data in the past a good idea to help improve model performance?</p></li>
+<li><p>Q2: In your opinion, is the wind direction from the air quality monitoring station (i.e., feed 28) that near the pollution source a good feature to predict bad smell?</p></li>
+</ul>
+<p>Based on the experiment, we have the following result:</p>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Experiment</p></th>
+<th class="head"><p>Feature Set</p></th>
+<th class="head"><p>Model</p></th>
+<th class="head"><p>F1-Score</p></th>
+<th class="head"><p>Precision</p></th>
+<th class="head"><p>Recall</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>E1</p></td>
+<td><p>S1</p></td>
+<td><p>DT</p></td>
+<td><p>0.32</p></td>
+<td><p>0.46</p></td>
+<td><p>0.27</p></td>
+</tr>
+<tr class="row-odd"><td><p>E2</p></td>
+<td><p>S2 (+wind)</p></td>
+<td><p>DT</p></td>
+<td><p>0.37</p></td>
+<td><p>0.40</p></td>
+<td><p>0.37</p></td>
+</tr>
+<tr class="row-even"><td><p>E3</p></td>
+<td><p>S3 (+hour)</p></td>
+<td><p>DT</p></td>
+<td><p>0.33</p></td>
+<td><p>0.40</p></td>
+<td><p>0.31</p></td>
+</tr>
+<tr class="row-odd"><td><p>E4</p></td>
+<td><p>S4 (+hour+wind)</p></td>
+<td><p>DT</p></td>
+<td><p>0.38</p></td>
+<td><p>0.41</p></td>
+<td><p>0.38</p></td>
+</tr>
+<tr class="row-even"><td><p>E5</p></td>
+<td><p>S1</p></td>
+<td><p>RF</p></td>
+<td><p>0.34</p></td>
+<td><p>0.46</p></td>
+<td><p>0.26</p></td>
+</tr>
+<tr class="row-odd"><td><p>E6</p></td>
+<td><p>S2 (+wind)</p></td>
+<td><p>RF</p></td>
+<td><p>0.38</p></td>
+<td><p>0.46</p></td>
+<td><p>0.35</p></td>
+</tr>
+<tr class="row-even"><td><p>E7</p></td>
+<td><p>S3 (+hour)</p></td>
+<td><p>RF</p></td>
+<td><p>0.32</p></td>
+<td><p>0.46</p></td>
+<td><p>0.27</p></td>
+</tr>
+<tr class="row-odd"><td><p>E8</p></td>
+<td><p>S4 (+hour+wind)</p></td>
+<td><p>RF</p></td>
+<td><p>0.39</p></td>
+<td><p>0.55</p></td>
+<td><p>0.34</p></td>
+</tr>
+</tbody>
+</table>
+<p>Model DT means decision tree, and RF means random forest. The f1-score, precision, and recall are averaged for all the cross-validation folds. Also, the numbers in the table could be different than the ones in the tutorial. The reason is that there is randomness in the training process of both models, so the results are going to be a little bit different each time.</p>
+<p>For question Q1, we can see that the performance does not really increase when we add more data from the previous 2 hours (by comparing experiment pairs E1/E3, E2/E4, E5/E7, and E6/E8). However, more experiments are needed to determine the effect of adding historical data. It could be the reason that the pollution took more hours to travel from the source to the city region. So we really need to add more data from the previous hours to see the effect, for example, by also including the data from the previous 3 and 4 hours.</p>
+<p>For question Q2, we already see 4% to 7% performance increases when adding wind data (by comparing experiment pairs E1/E2, E3/E4, E5/E6, E7/E8). This suggests that wind data indeed plays an important role in smell prediction, which makes sense as the wind direction and speed affect how the pollution travels to the city region from the source in a real-world situation.</p>
+</section>
 </section>
 <section id="pytorch-implementation-tasks">
 <h2>PyTorch Implementation Tasks<a class="headerlink" href="#pytorch-implementation-tasks" title="Permalink to this headline">#</a></h2>
@@ -560,7 +654,7 @@ title="Print to PDF"
         <span class="bp">self</span><span class="o">.</span><span class="n">linear2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">relu2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">linear3</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">output_size</span><span class="p">)</span>
-        
+
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relu1</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
