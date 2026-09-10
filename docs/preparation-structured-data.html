@@ -332,11 +332,6 @@ title="Print to PDF"
    Task 2: Explore Data
   </a>
  </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#task-3-check-the-statistics">
-   Task 3: Check the Statistics
-  </a>
- </li>
 </ul>
 
     </nav>
@@ -366,11 +361,6 @@ title="Print to PDF"
    Task 2: Explore Data
   </a>
  </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#task-3-check-the-statistics">
-   Task 3: Check the Statistics
-  </a>
- </li>
 </ul>
 
                         </nav>
@@ -383,7 +373,7 @@ title="Print to PDF"
                 
   <section class="tex2jax_ignore mathjax_ignore" id="preparation-structured-data-processing">
 <h1>Preparation (Structured Data Processing)<a class="headerlink" href="#preparation-structured-data-processing" title="Permalink to this headline">#</a></h1>
-<p>(Last updated: Jan 24, 2025)<a class="footnote-reference brackets" href="#credit" id="id1">1</a></p>
+<p>(Last updated: Sep 10, 2026)<a class="footnote-reference brackets" href="#credit" id="id1">1</a></p>
 <p>This part will prepare you with the background knowledge that we will use for this module.
 Smell Pittsburgh is a mobile application for crowdsourcing reports of bad odors, such as those generated from air pollution.
 The data is used to train machine learning models to predict the presence of bad smell, create push notifications to inform citizens about the bad smell, and explain local air pollution patterns.
@@ -408,6 +398,11 @@ If you come to the tutorial session without reading the paper, you will probably
 <li><p>How can the data be used potentially to help local people?</p></li>
 <li><p>What are the roles of data science in the Smell Pittsburgh project?</p></li>
 </ul>
+<p>Specifically for the section 5.2 Smell Dataset Study, write down the answers to the following questions.</p>
+<ul class="simple">
+<li><p>Are there any characteristics about the distribution of smell reports over time and geographical regions (check Figure 3 and 6 in the paper)?</p></li>
+<li><p>What are the common descriptions of bad odors that people reported (check Figure 5 in the paper)?</p></li>
+</ul>
 </section>
 <section id="task-2-explore-data">
 <h2>Task 2: Explore Data<a class="headerlink" href="#task-2-explore-data" title="Permalink to this headline">#</a></h2>
@@ -430,19 +425,6 @@ Smell events mean the occurance within a time range when many people complained 
 <li><p>Are there common patterns in air quality sensor measurements (indicated by the circle on the user interface with colors) when smell events are about to happen or are happening?</p></li>
 <li><p>Can you use the patterns that you found to identify similar smell events on other days? Find at least three other days that have similar patterns.</p></li>
 </ul>
-</section>
-<section id="task-3-check-the-statistics">
-<h2>Task 3: Check the Statistics<a class="headerlink" href="#task-3-check-the-statistics" title="Permalink to this headline">#</a></h2>
-<p>Next, after you explore the data, go to the following web page to see the aggregated statistics to understand the distribution of users and smell reports temporally and spatially.</p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://smellpgh.org/analysis">Link to the data analysis page</a></p></li>
-</ul>
-<p>When checking the analysis on the above-mentioned web page, answer the following questions and write your answers down.</p>
-<ul class="simple">
-<li><p>Are there any characteristics about the distribution of smell reports over time and geographical regions?</p></li>
-<li><p>What are the common descriptions of bad odors that people reported?</p></li>
-<li><p>What are the possible predictors (e.g., chemical compounds, weather data) of bad smell in the Pittsburgh region?</p></li>
-</ul>
 <hr class="footnotes docutils" />
 <dl class="footnote brackets">
 <dt class="label" id="credit"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
@@ -464,7 +446,7 @@ Smell events mean the occurance within a time range when many people complained 
             mode: "python"
         },
         kernelOptions: {
-            kernelName: "python3",
+            name: "python3",
             path: "./docs"
         },
         predefinedOutput: true
