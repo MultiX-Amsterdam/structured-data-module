@@ -345,7 +345,7 @@ title="Print to PDF"
 
 
 <span class="k">def</span> <span class="nf">check_answer_df</span><span class="p">(</span><span class="n">df_result</span><span class="p">,</span> <span class="n">df_answer</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This function checks if two output dataframes are the same.</span>
 
 <span class="sd">    Parameters</span>
@@ -371,7 +371,7 @@ title="Print to PDF"
 
 
 <span class="k">def</span> <span class="nf">compute_feature_importance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">df_x</span><span class="p">,</span> <span class="n">df_y</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s2">&quot;f1&quot;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute feature importance of a model.</span>
 
 <span class="sd">    Parameters</span>
@@ -405,7 +405,7 @@ title="Print to PDF"
 
 
 <span class="k">def</span> <span class="nf">scorer</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A customized scoring function to evaluate a classifier.</span>
 
 <span class="sd">    Parameters</span>
@@ -431,7 +431,7 @@ title="Print to PDF"
 
 
 <span class="k">def</span> <span class="nf">train_and_evaluate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">df_x</span><span class="p">,</span> <span class="n">df_y</span><span class="p">,</span> <span class="n">train_size</span><span class="o">=</span><span class="mi">336</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mi">168</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    model : a sklearn model object</span>
@@ -472,7 +472,7 @@ title="Print to PDF"
 
 
 <span class="k">def</span> <span class="nf">is_datetime_obj_tz_aware</span><span class="p">(</span><span class="n">dt</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Find if the datetime object is timezone aware.</span>
 
 <span class="sd">    Parameters</span>
@@ -484,7 +484,7 @@ title="Print to PDF"
 
 
 <span class="k">def</span> <span class="nf">convert_wind_direction</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert wind directions to sine and cosine components.</span>
 
 <span class="sd">    Parameters</span>
@@ -515,7 +515,7 @@ title="Print to PDF"
 
 
 <span class="k">def</span> <span class="nf">plot_smell_by_day_and_hour</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot the average number of smell reports by the day of week and the hour of day.</span>
 
 <span class="sd">    Parameters</span>
@@ -544,7 +544,7 @@ title="Print to PDF"
 
 
 <span class="k">def</span> <span class="nf">insert_previous_data_to_cols</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">n_hr</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Insert columns to indicate the data from the previous hours.</span>
 
 <span class="sd">    Parameters</span>
@@ -593,7 +593,7 @@ title="Print to PDF"
 
 
 <span class="k">def</span> <span class="nf">get_pca_result</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the result of Principal Component Analysis.</span>
 
 <span class="sd">    Parameters</span>
@@ -649,7 +649,7 @@ title="Print to PDF"
             mode: "python"
         },
         kernelOptions: {
-            kernelName: "python3",
+            name: "python3",
             path: "./docs"
         },
         predefinedOutput: true

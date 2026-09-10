@@ -1,6 +1,6 @@
 # Preparation (Structured Data Processing)
 
-(Last updated: Jan 24, 2025)[^credit]
+(Last updated: Sep 10, 2026)[^credit]
 
 [^credit]: Credit: this teaching material is created by [Yen-Chia Hsu](https://github.com/yenchiah).
 
@@ -27,6 +27,10 @@ When reading the paper, write down the answers to the following questions.
 - How can the data be used potentially to help local people?
 - What are the roles of data science in the Smell Pittsburgh project?
 
+Specifically for the section 5.2 Smell Dataset Study, write down the answers to the following questions.
+- Are there any characteristics about the distribution of smell reports over time and geographical regions (check Figure 3 and 6 in the paper)?
+- What are the common descriptions of bad odors that people reported (check Figure 5 in the paper)?
+
 ## Task 2: Explore Data
 
 After you read the paper mentioned previously, explore the data in the following URL that visualizes smell reports and air quality data.
@@ -44,13 +48,3 @@ Smell events mean the occurance within a time range when many people complained 
 - Are there common wind patterns (indicated by the blue arrows on the user interface near the circles) when smell events are about to happen or are happening?
 - Are there common patterns in air quality sensor measurements (indicated by the circle on the user interface with colors) when smell events are about to happen or are happening?
 - Can you use the patterns that you found to identify similar smell events on other days? Find at least three other days that have similar patterns.
-
-## Task 3: Check the Statistics
-
-Next, after you explore the data, go to the following web page to see the aggregated statistics to understand the distribution of users and smell reports temporally and spatially.
-- [Link to the data analysis page](https://smellpgh.org/analysis)
-
-When checking the analysis on the above-mentioned web page, answer the following questions and write your answers down.
-- Are there any characteristics about the distribution of smell reports over time and geographical regions?
-- What are the common descriptions of bad odors that people reported?
-- What are the possible predictors (e.g., chemical compounds, weather data) of bad smell in the Pittsburgh region?
